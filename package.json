@@ -1,0 +1,28 @@
+{
+  "name": "token-generator-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index1.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "nodemon --inspect dist/index1.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index1.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.2.4",
+    "nodejs": "^0.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.3",
+    "concurrently": "^8.2.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.0",
+    "typescript": "^5.4.3"
+  }
+}
