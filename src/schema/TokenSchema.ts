@@ -1,6 +1,6 @@
 const Schema = require('mongoose').Schema;
 
-module.exports = new Schema({
+export default new Schema({
     setting: {
         name: String,
         symbol: String,

@@ -1,8 +1,8 @@
-const express = require('express');
+import e, { Express, Router } from 'express';
 const dotenv = require('dotenv');
 const morgan = require('morgan');
-const route = require('./routes');
-const router = express.Router();
+import route from './routes/index';
+const router = Router();
 
 const db = require("./config/db");
 //connect to db
@@ -12,12 +12,12 @@ db.connect();
 dotenv.config();
 const PORT = process.env.PORT || 3002;
 
-const app = express();
+const app = e();
 app.use(morgan("combined"));
 
 // app.use(router)
 
-route(app);gi
+route(app);
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);

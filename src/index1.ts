@@ -3,7 +3,7 @@ import epress, { Express } from "express";
 const app = epress();
 
 app.get("/", (req, res) => {
-    res.send("Hello from typesc ri 123pts");
+    res.send("Hello frfdfeom typ   sc ri 123pts");
 })
 
 

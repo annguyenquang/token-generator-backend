@@ -1,15 +1,13 @@
-const mongoose = require('mongoose');
-const TokenModel = require('../models/TokenModel');
-const TokenSchema = require('../schema/TokenSchema');
-
+import TokenModel from "../models/TokenModel";
+import { Request, Response, NextFunction } from "express";
 class TokenController {
-    getAllToken = async (req, res, next) => {
+    getAllToken = async (req: Request, res: Response, next: NextFunction) => {
         console.log("Đã vào index");
         const data = await TokenModel.find();
         res.json(data);
     }
 
-    saveToken = async (req, res, next) => {
+    saveToken = async (req: Request, res: Response, next: NextFunction) => {
         let token = new TokenModel({
             setting: {
                 name: "Ant",
@@ -19,4 +17,4 @@ class TokenController {
     }
 }
 
-module.exports = new TokenController;
+export default new TokenController;

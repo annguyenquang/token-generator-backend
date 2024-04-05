@@ -5,8 +5,8 @@
   "main": "src/index1.ts",
   "scripts": {
     "build": "npx tsc",
-    "start": "nodemon --inspect dist/index1.js",
-    "dev": "concurrently \"tsc -w\" \"nodemon dist/index1.js\"",
+    "start": "nodemon --inspect dist/index.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
