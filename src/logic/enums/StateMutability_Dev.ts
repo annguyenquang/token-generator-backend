@@ -1,4 +1,5 @@
 enum StateMutability {
+    NONE,
     VIEW,
     PURE
 }

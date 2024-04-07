@@ -8,17 +8,17 @@ class Function_Dev extends ContractElement {
     _name: String;
     _parameterList: Parameter[] = [];
     _visibility: Visibility_Dev = Visibility_Dev.INTERNAL;
-    _stateMutability: StateMutability; //view - pure
-    _isPayable: boolean = true;
+    _stateMutability: StateMutability = StateMutability.NONE;
+    _isPayable: boolean = false;
     _isVirtual: boolean = false;
-    _overrideSpecifier: OverriderSpecifier_Dev;
+    _overrideSpecifier: OverriderSpecifier_Dev | undefined;
     _returns: Parameter[] = [];
     _functionBody: String;
 
     constructor(name: String,
-        stateMutability: StateMutability,
-        overrideSpecifier: OverriderSpecifier_Dev,
         functionBody: String,
+        stateMutability?: StateMutability,
+        overrideSpecifier?: OverriderSpecifier_Dev,
         parameterList?: Parameter[],
         returns?: Parameter[],
         visibility?: Visibility_Dev,
@@ -28,9 +28,9 @@ class Function_Dev extends ContractElement {
     ) {
         super();
         this._name = name;
-        this._stateMutability = stateMutability;
-        this._overrideSpecifier = overrideSpecifier;
         this._functionBody = functionBody;
+        stateMutability && (this._stateMutability = stateMutability);
+        overrideSpecifier && (this._overrideSpecifier = overrideSpecifier);
         parameterList && (this._parameterList = parameterList);
         returns && (this._returns = returns);
         visibility && (this._visibility = visibility);
@@ -38,7 +38,11 @@ class Function_Dev extends ContractElement {
         isVirtual && (this._isVirtual = isVirtual);
     }
     toString: Function = () => {
+        return (
+            `function ${this._name}(${this._parameterList.map((p) => { return (`${p.toString()}`) })}) ${Object.values(Visibility_Dev)[this._visibility]} ${this._stateMutability ? Object.values(StateMutability)[this._stateMutability] : ""} ${this._isVirtual ? `virtual` : ""} ${this._overrideSpecifier ? `override(${this._overrideSpecifier._identifierPath.toString()}) ` : ""}${this._isPayable ? "payable" : ""} ${this._returns.length !== 0 ? `returns(${this._returns.map(p => `${p.toString()}`)})` : ""}` + `{\n
+                ${this._functionBody} \n}`
 
+        )
     }
 }
 
