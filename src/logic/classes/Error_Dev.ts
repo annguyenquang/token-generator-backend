@@ -4,17 +4,20 @@ import Parameter from "./Parameter";
 class Error_Dev extends ContractElement {
     _name: String;
     _parameterList: Parameter[] = [];
-    _isAnonymous: boolean = false;
 
-    constructor(name: String, parameterList?: Parameter[], isAnonymous?: boolean) {
+    constructor(name: String, parameterList?: Parameter[]) {
         super();
         this._name = name;
         parameterList && (this._parameterList = parameterList);
-        isAnonymous && (this._isAnonymous = isAnonymous);
     }
 
-    toString: Function = () => {
-
+    toString: Function = (): String => {
+        return (
+            `error ${this._name}(${this._parameterList.map((param) => {
+                return ` ${param.toString()}`;
+            }
+            )});`
+        );
     }
 }
 
