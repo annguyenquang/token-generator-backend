@@ -16,9 +16,9 @@ class OverriderSpecifier_Dev extends ContractElement {
     listToString: Function = (list: String[]): String => {
         let res: String = "";
         if (list && list.length > 0) {
-            res = `${list.map(p => (" " + p.toString()))}`;
-            while (res[-1] === " ") {
-                res = res.slice(0);
+            res = list.map(p => " " + p).join(",");
+            while (res[0] === " ") {
+                res = res.slice(1);
             }
         }
 

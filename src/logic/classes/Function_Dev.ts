@@ -14,6 +14,7 @@ class Function_Dev extends ContractElement {
     _isPayable: boolean = false;
     _isVirtual: boolean = false;
     _overrideSpecifier: OverriderSpecifier_Dev | undefined;
+    _extraKeyWord: String[] = [];
     _returns: Parameter[] = [];
     _functionBody: String;
 
@@ -26,6 +27,7 @@ class Function_Dev extends ContractElement {
         isPayable?: boolean,
         isVirtual?: boolean,
         overrideSpecifier?: OverriderSpecifier_Dev,
+        extraKeyWord?: String[],  // This is an extra keyword that can be added to the function
         returns?: Parameter[],
     ) {
         super();
@@ -39,7 +41,9 @@ class Function_Dev extends ContractElement {
         visibility && (this._visibility = visibility);
         isPayable && (this._isPayable = isPayable);
         isVirtual && (this._isVirtual = isVirtual);
+        extraKeyWord && (this._extraKeyWord = extraKeyWord);
     }
+
     toString: Function = () => {
         return (
             "function" +
@@ -49,6 +53,7 @@ class Function_Dev extends ContractElement {
             + `${this._stateMutability ? "" + Object.values(StateMutability)[this._stateMutability] : ""}`
             + `${this._isPayable ? " payable" : ""}`
             + `${this._isVirtual ? " virtual" : ""}`
+            + `${this._extraKeyWord.length !== 0 ? ` ${this._extraKeyWord.join(" ")}` : ""}`
             + `${this._overrideSpecifier ? ` override(${this._overrideSpecifier.toString()})` : ""}`
             + `${this._returns.length !== 0 ? ` returns(${Parameter.listToString(this._returns)})` : ""}` +
             "{" +

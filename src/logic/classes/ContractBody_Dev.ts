@@ -50,7 +50,8 @@ class ContractBody_Dev extends ContractElement {
     }
 
     toString: Function = () => {
-
+        let res = '';
+        return (res);
     }
 
 

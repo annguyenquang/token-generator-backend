@@ -18,6 +18,7 @@ describe("Test toString of Function", () => {
             true,
             true,
             new OverriderSpecifier_Dev(["Contract1", "Contract2"]),
+            ["initializer"],
             [new Parameter("int", "d"), new Parameter("int256", "e"), new Parameter("string", "f")],
         );
 

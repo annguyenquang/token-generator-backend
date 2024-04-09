@@ -31,6 +31,38 @@ class Constructor_Dev extends ContractElement {
 
         return code;
     }
+    // Generate getters and setters for the class properties
+    get parameterList(): Parameter[] {
+        return this._parameterList;
+    }
+
+    set parameterList(value: Parameter[]) {
+        this._parameterList = value;
+    }
+
+    get payable(): boolean {
+        return this._payable;
+    }
+
+    set payable(value: boolean) {
+        this._payable = value;
+    }
+
+    get visibility(): Visibility_Dev {
+        return this._visibility;
+    }
+
+    set visibility(value: Visibility_Dev) {
+        this._visibility = value;
+    }
+
+    get functionBody(): String {
+        return this._functionBody;
+    }
+
+    set functionBody(value: String) {
+        this._functionBody = value;
+    }
 }
 
 export default Constructor_Dev;
