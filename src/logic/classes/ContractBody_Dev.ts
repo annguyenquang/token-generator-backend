@@ -17,14 +17,14 @@ class ContractBody_Dev extends ContractElement {
     _fallbackList?: Fallback_Dev[];
     _structList?: Struct_Dev[];
     _enumList?: Enum_Dev[];
-    _stateList?: State_Dev;
-    _eventList?: Event_Dev;
-    _errorList?: Error_Dev;
+    _stateList?: State_Dev[];
+    _eventList?: Event_Dev[];
+    _errorList?: Error_Dev[];
     _userDefineValueTypeList?: String[];
     _usingDirectiveList?: String[];
 
     constructor(contractConstructor: Constructor_Dev,
-        stateList?: State_Dev,
+        stateList?: State_Dev[],
         functionList?: Function_Dev[],
         modifierList?: Modifier_Dev[],
         fallbackList?: Fallback_Dev[],
