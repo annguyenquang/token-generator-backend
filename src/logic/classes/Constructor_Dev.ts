@@ -1,6 +1,8 @@
 import Visibility_Dev from "../enums/Visibility_Dev";
 import { ContractElement } from "../interfaces/ContractElement";
-import Parameter from "./Parameter";
+import { Parameter } from "./Parameter";
+import ModifierCall_Dev from "./ModifierCall_Dev";
+import exp from "constants";
 
 
 class Constructor_Dev extends ContractElement {
@@ -8,60 +10,56 @@ class Constructor_Dev extends ContractElement {
     _payable: boolean = true;
     _visibility: Visibility_Dev = Visibility_Dev.PUBLIC;
     _functionBody: String;
-    constructor(functionBody: String, parameterList?: Parameter[], payable?: boolean, visibility?: Visibility_Dev) {
+    _modifierCallList: ModifierCall_Dev[] = [];
+    constructor({
+        functionBody,
+        parameterList,
+        modifierCallList,
+        payable,
+        visibility
+    }: {
+        functionBody: string,
+        parameterList?: Parameter[],
+        modifierCallList?: ModifierCall_Dev[],
+        payable?: boolean,
+        visibility?: Visibility_Dev
+    }) {
         super();
         this._functionBody = functionBody;
-        if (parameterList) this._parameterList = parameterList;
-        if (payable) this._payable = payable;
-        if (visibility) this._visibility = visibility;
+        if (parameterList) {
+            this._parameterList = parameterList;
+        }
+        if (payable) {
+            this._payable = payable;
+        }
+        if (visibility) {
+            this._visibility = visibility;
+        }
+        if (modifierCallList) {
+            this._modifierCallList = modifierCallList;
+        }
     }
     // Implement the code here
-    toString = (): string => {
+    toString: Function = (): String => {
         // Generate the code for the constructor
         let code = `${Object.values(Visibility_Dev)[this._visibility]} constructor(`;
         if (this._parameterList.length > 0) {
             code += Parameter.listToString(this._parameterList);
         }
         code += `)`;
+        // Add the modifiers if provided
+        if (this._modifierCallList.length > 0) {
+            code += ` ${ModifierCall_Dev.listToString(this._modifierCallList)}`
+        }
 
-        // Add the function body if provided
-        if (this._functionBody) {
+        if (this._functionBody.length > 0) {
             code += `{\n${this._functionBody}\n}`;
+        } else {
+            code += "{}";
         }
 
         return code;
-    }
-    // Generate getters and setters for the class properties
-    get parameterList(): Parameter[] {
-        return this._parameterList;
-    }
 
-    set parameterList(value: Parameter[]) {
-        this._parameterList = value;
-    }
-
-    get payable(): boolean {
-        return this._payable;
-    }
-
-    set payable(value: boolean) {
-        this._payable = value;
-    }
-
-    get visibility(): Visibility_Dev {
-        return this._visibility;
-    }
-
-    set visibility(value: Visibility_Dev) {
-        this._visibility = value;
-    }
-
-    get functionBody(): String {
-        return this._functionBody;
-    }
-
-    set functionBody(value: String) {
-        this._functionBody = value;
     }
 }
 

@@ -4,7 +4,7 @@ import Enum_Dev from "./Enum_Dev";
 import Error_Dev from "./Error_Dev";
 import Event_Dev from "./Event_Dev";
 import Fallback_Dev from "./Fallback_Dev";
-import Function_Dev from "./Function_Dev";
+import { Function_Dev, FunctionBuilder } from "./Function_Dev";
 import Modifier_Dev from "./Modifier_Dev";
 import State_Dev from "./State_Dev";
 import Struct_Dev from "./Struct_Dev";
@@ -23,7 +23,20 @@ class ContractBody_Dev extends ContractElement {
     _userDefineValueTypeList?: String[];
     _usingDirectiveList?: String[];
 
-    constructor(contractConstructor: Constructor_Dev,
+    constructor({
+        contractConstructor,
+        stateList,
+        functionList,
+        modifierList,
+        fallbackList,
+        structList,
+        enumList,
+        eventList,
+        errorList,
+        userDefineValueTypeList,
+        usingDerectiveList
+    }: {
+        contractConstructor: Constructor_Dev,
         stateList?: State_Dev[],
         functionList?: Function_Dev[],
         modifierList?: Modifier_Dev[],
@@ -34,7 +47,7 @@ class ContractBody_Dev extends ContractElement {
         errorList?: Error_Dev[],
         userDefineValueTypeList?: String[],
         usingDerectiveList?: String[]
-    ) {
+    }) {
         super();
         this._contractConstructor = contractConstructor;
         stateList && (this._stateList = stateList);

@@ -1,5 +1,5 @@
 import Event_Dev from "../src/logic/classes/Event_Dev";
-import Parameter from "../src/logic/classes/Parameter";
+import { Parameter } from "../src/logic/classes/Parameter";
 import DataLocation_Dev from "../src/logic/enums/DataLocation_Dev";
 
 const error1 = new Event_Dev("create", []);

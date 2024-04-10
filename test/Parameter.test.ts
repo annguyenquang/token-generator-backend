@@ -1,4 +1,4 @@
-import Parameter from "../src/logic/classes/Parameter";
+import { Parameter } from "../src/logic/classes/Parameter";
 import DataLocation_Dev from "../src/logic/enums/DataLocation_Dev";
 
 const para = new Parameter("uint256", "age", DataLocation_Dev.CALLDATA);

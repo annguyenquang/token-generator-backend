@@ -1,5 +1,5 @@
 import { ContractElement } from "../interfaces/ContractElement";
-import Parameter from "./Parameter";
+import { Parameter } from "./Parameter";
 
 class Error_Dev extends ContractElement {
     _name: String;

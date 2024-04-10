@@ -1,6 +1,31 @@
 import DataLocation_Dev from "../enums/DataLocation_Dev";
 import { ContractElement } from "../interfaces/ContractElement";
 
+class ParameterBuilder {
+    _type: String = '';
+    _dataLocation: DataLocation_Dev = DataLocation_Dev.NONE; //memory -- storage -- none;
+    _name: String = '';
+
+    setType(type: String): ParameterBuilder {
+        this._type = type;
+        return this;
+    }
+
+    setDataLocation(dataLocation: DataLocation_Dev): ParameterBuilder {
+        this._dataLocation = dataLocation;
+        return this;
+    }
+
+    setName(name: String): ParameterBuilder {
+        this._name = name;
+        return this;
+    }
+
+    build(): Parameter {
+        return new Parameter(this._type, this._name, this._dataLocation);
+    }
+}
+
 class Parameter extends ContractElement {
     _type: String;
     _dataLocation: DataLocation_Dev = DataLocation_Dev.NONE; //memory -- storage -- none;
@@ -15,16 +40,11 @@ class Parameter extends ContractElement {
 
     toString: Function = () => {
         const location = this._dataLocation === DataLocation_Dev.NONE ? " " : " " + Object.values(DataLocation_Dev)[this._dataLocation] + " ";
-        // console.log("location1: ", this._dataLocation);
-        // console.log("location2:", location);
-        // // console.log(location);
-        // // Object.values((DataLocation_Dev)).forEach((element: any) => {
-        // //     console.log(element);
-        // // });
         return (
             `${this._type}${location}${this._name}`
         );
     }
+
     static listToString: Function = (list: Parameter[]): String => {
         let res: String;
         res = `${list.map(p => (" " + p.toString()))}`;
@@ -37,4 +57,4 @@ class Parameter extends ContractElement {
     }
 }
 
-export default Parameter;
+export { Parameter, ParameterBuilder };
