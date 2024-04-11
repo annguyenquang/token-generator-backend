@@ -3,7 +3,11 @@ import { ContractElement } from "../interfaces/ContractElement";
 class ModifierCall_Dev implements ContractElement {
     _name: String;
     _args: String[] = [];
-    constructor(name: String, args?: String[]) {
+    constructor(object: {
+        name: String,
+        args?: String[]
+    }) {
+        const { name, args } = object;
         this._name = name;
         args && (this._args = args);
     }
