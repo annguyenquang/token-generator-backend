@@ -10,8 +10,11 @@ class Modifier_Dev implements ContractElement {
     }
 
     toString = (): String => {
-        return (
-            `${this._name}(${this._parameterList.map(p => p.toString())})`
+        let res = `${this._name}(${this._parameterList.map(p => p.toString())})`
+        while (res[res.length - 1] === ',' || res[res.length - 1] === ' ') {
+            res = res.slice(0, res.length - 1);
+        }
+        return (res
         );
     }
 }

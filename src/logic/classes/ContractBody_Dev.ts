@@ -63,6 +63,7 @@ class ContractBody_Dev implements ContractElement {
 
     toString = (): String => {
         let res = '';
+        res += this._contractConstructor.toString();
         return (res);
     }
 

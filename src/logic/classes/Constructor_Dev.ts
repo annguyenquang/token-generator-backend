@@ -42,7 +42,7 @@ class Constructor_Dev implements ContractElement {
     // Implement the code here
     toString = (): String => {
         // Generate the code for the constructor
-        let code = `${Object.values(Visibility_Dev)[this._visibility]} constructor(`;
+        let code = `constructor(`;
         if (this._parameterList.length > 0) {
             code += Parameter.listToString(this._parameterList);
         }

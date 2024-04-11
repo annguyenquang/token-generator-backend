@@ -37,10 +37,10 @@ class Contract_Dev implements ContractElement, Visitable {
     }
     toString: () => string = (): string => {
         let res = "SPDX-License-Identifier: MIT\n"
-            + "pragma solidity ^" + this.version + ";\n"
-            + `${this.importList.length > 0 ? `${this.importList.map((imp) => `import ${imp};`).join("\n")}\n` : ''}`
+            + "pragma solidity " + this.version + ";\n"
+            + `${this.importList.length > 0 ? `${this.importList.map((imp) => `import "${imp}";`).join("\n")}\n` : ''}`
             + `contract ${this.name} ${this.inheritances.length > 0 ? "is " + this.inheritances.join(", ") : ""}`
-            + `${this.contractBody && this.contractBody.toString().length > 0 ? `{\n${this.contractBody.toString()}\n}` : `{}`}`;
+            + `${(this.contractBody && this.contractBody.toString().length > 0) ? `{\n${this.contractBody.toString()}\n}` : `{}`}`;
         return res
     }
 }
@@ -98,6 +98,17 @@ class Contract_DevBuilder {
 
     build(): Contract_Dev {
         return new Contract_Dev(this.options);
+    }
+    copy(contract: Contract_Dev): Contract_DevBuilder {
+        this.options = {
+            name: contract.name,
+            contractBody: contract.contractBody,
+            version: contract.version,
+            isAbstract: contract.isAbstract,
+            inheritances: contract.inheritances,
+            imports: contract.importList
+        }
+        return this;
     }
 }
 
