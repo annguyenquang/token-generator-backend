@@ -6,17 +6,24 @@ import Visibility_Dev from "../src/logic/enums/Visibility_Dev";
 
 describe('Constructor', () => {
     test('Test the constructor toString() function', () => {
-        const constructor = new Constructor_Dev("console.log('Hello World!');");
+        const constructor = new Constructor_Dev({
+            functionBody: "console.log('Hello World!');",
+        });
         const expectRes = "PUBLIC constructor(){\nconsole.log('Hello World!');\n}";
         expect(constructor.toString()).toBe(expectRes);
     });
     test('Test the constructor toString() function with parameters', () => {
-        const constructor = new Constructor_Dev("console.log('Hello World!');", [new Parameter("string", "name"), new Parameter("uint", "age")]);
+        const constructor = new Constructor_Dev({ functionBody: "console.log('Hello World!');", parameterList: [new Parameter("string", "name"), new Parameter("uint", "age")] });
         const expectRes = "PUBLIC constructor(string name, uint age){\nconsole.log('Hello World!');\n}";
         expect(constructor.toString()).toBe(expectRes);
     });
     test('Test real world example', () => {
-        const constructor = new Constructor_Dev("", [], [new ModifierCall_Dev("ERC20", ["\"MyToken\"", "\"MTK\""]), new ModifierCall_Dev("ERC20Permit", ["\"MyToken\""])], false, Visibility_Dev.PUBLIC,);
+        const constructor = new Constructor_Dev({
+            functionBody: "",
+            modifierCallList: [new ModifierCall_Dev("ERC20", ["\"MyToken\"", "\"MTK\""]), new ModifierCall_Dev("ERC20Permit", ["\"MyToken\""])],
+            payable: false,
+            visibility: Visibility_Dev.PUBLIC
+        });
         const expectRes = "PUBLIC constructor() ERC20(\"MyToken\", \"MTK\"), ERC20Permit(\"MyToken\"){}";
         expect(constructor.toString()).toBe(expectRes);
     });
