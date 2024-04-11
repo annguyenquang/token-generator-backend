@@ -26,19 +26,18 @@ class ParameterBuilder {
     }
 }
 
-class Parameter extends ContractElement {
+class Parameter implements ContractElement {
     _type: String;
     _dataLocation: DataLocation_Dev = DataLocation_Dev.NONE; //memory -- storage -- none;
     _name: String;
 
     constructor(type: String, name: String, dataLocation?: DataLocation_Dev) {
-        super();
         this._type = type;
         this._name = name;
         dataLocation && (this._dataLocation = dataLocation)
     }
 
-    toString: Function = () => {
+    toString = () => {
         const location = this._dataLocation === DataLocation_Dev.NONE ? " " : " " + Object.values(DataLocation_Dev)[this._dataLocation] + " ";
         return (
             `${this._type}${location}${this._name}`

@@ -1,13 +1,12 @@
 import { ContractElement } from "../interfaces/ContractElement";
 
-class OverriderSpecifier_Dev extends ContractElement {
+class OverriderSpecifier_Dev implements ContractElement {
     _identifierPath: String[] = [];
     constructor(identifierPath?: String[]) {
-        super();
         identifierPath && (this._identifierPath = identifierPath);
     }
 
-    toString: Function = (): String => {
+    toString = (): String => {
         return (
             this.listToString(this._identifierPath)
         );

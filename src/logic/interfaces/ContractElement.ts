@@ -1,3 +1,3 @@
-export abstract class ContractElement {
-    abstract toString: Function;
+export interface ContractElement {
+    toString(): String;
 }

@@ -1,14 +1,13 @@
 import { ContractElement } from "../interfaces/ContractElement";
 
-class Struct_Dev extends ContractElement {
+class Struct_Dev implements ContractElement {
     _name: String;
     _structMemerList: { name: String, type: String }[];
     constructor(name: String, structMemberList: { name: String, type: String }[]) {
-        super();
         this._name = name;
         this._structMemerList = structMemberList;
     }
-    toString: Function = (): String => {
+    toString = (): String => {
         let res = `struct ${this._name}{\n`;
         this._structMemerList.forEach((e) => {
             res += `${e.type} ${e.name};\n`

@@ -1,14 +1,13 @@
 import { ContractElement } from "../interfaces/ContractElement";
 
-class ModifierCall_Dev extends ContractElement {
+class ModifierCall_Dev implements ContractElement {
     _name: String;
     _args: String[] = [];
     constructor(name: String, args?: String[]) {
-        super();
         this._name = name;
         args && (this._args = args);
     }
-    toString: Function = (): String => {
+    toString = (): String => {
         return (
             `${this._name}(${this._args.join(", ")})`
         );

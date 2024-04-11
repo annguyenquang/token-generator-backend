@@ -5,7 +5,8 @@ import ModifierCall_Dev from "./ModifierCall_Dev";
 import exp from "constants";
 
 
-class Constructor_Dev extends ContractElement {
+class Constructor_Dev implements ContractElement {
+    accept: Function = () => { };
     _parameterList: Parameter[] = [];
     _payable: boolean = true;
     _visibility: Visibility_Dev = Visibility_Dev.PUBLIC;
@@ -24,7 +25,6 @@ class Constructor_Dev extends ContractElement {
         payable?: boolean,
         visibility?: Visibility_Dev
     }) {
-        super();
         this._functionBody = functionBody;
         if (parameterList) {
             this._parameterList = parameterList;
@@ -40,7 +40,7 @@ class Constructor_Dev extends ContractElement {
         }
     }
     // Implement the code here
-    toString: Function = (): String => {
+    toString = (): String => {
         // Generate the code for the constructor
         let code = `${Object.values(Visibility_Dev)[this._visibility]} constructor(`;
         if (this._parameterList.length > 0) {

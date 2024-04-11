@@ -9,7 +9,7 @@ import Modifier_Dev from "./Modifier_Dev";
 import State_Dev from "./State_Dev";
 import Struct_Dev from "./Struct_Dev";
 
-class ContractBody_Dev extends ContractElement {
+class ContractBody_Dev implements ContractElement {
 
     _contractConstructor: Constructor_Dev;
     _functionList?: Function_Dev[];
@@ -48,7 +48,6 @@ class ContractBody_Dev extends ContractElement {
         userDefineValueTypeList?: String[],
         usingDerectiveList?: String[]
     }) {
-        super();
         this._contractConstructor = contractConstructor;
         stateList && (this._stateList = stateList);
         functionList && (this._functionList = functionList);
@@ -62,7 +61,7 @@ class ContractBody_Dev extends ContractElement {
         usingDerectiveList && (this._usingDirectiveList = usingDerectiveList);
     }
 
-    toString: Function = () => {
+    toString = (): String => {
         let res = '';
         return (res);
     }

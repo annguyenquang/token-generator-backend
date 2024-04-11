@@ -1,7 +1,7 @@
 import e from "express";
 import Constructor_Dev from "../src/logic/classes/Constructor_Dev";
 import ContractBody_Dev from "../src/logic/classes/ContractBody_Dev";
-import Contract_Dev from "../src/logic/classes/Contract_Dev";
+import { Contract_Dev } from "../src/logic/classes/Contract_Dev";
 
 describe('Contract_Dev', () => {
     test('Test Contract_Dev toString Function', () => {

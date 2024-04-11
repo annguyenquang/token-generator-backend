@@ -5,7 +5,7 @@ import Modifier_Dev from "./Modifier_Dev";
 import OverriderSpecifier_Dev from "./OverriderSpecifier_Dev";
 import { Parameter } from "./Parameter";
 
-class Function_Dev extends ContractElement {
+class Function_Dev implements ContractElement {
     _name: String;
     _parameterList: Parameter[] = [];
     _visibility: Visibility_Dev = Visibility_Dev.INTERNAL;
@@ -31,7 +31,6 @@ class Function_Dev extends ContractElement {
         extraKeyWord?: String[],  // This is an extra keyword that can be added to the function
         returns?: Parameter[],
     }) {
-        super();
         const {
             name,
             functionBody,
@@ -58,7 +57,7 @@ class Function_Dev extends ContractElement {
         extraKeyWord && (this._extraKeyWord = extraKeyWord);
     }
 
-    toString: Function = () => {
+    toString = () => {
         return (
             "function" +
             ` ${this._name}`
