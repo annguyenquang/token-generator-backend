@@ -17,6 +17,7 @@ class ContractMapper {
     _name: String = "";
     _symbol: String = "";
     _isMintage: boolean = false;
+    _isBurnable: boolean = false;
     _isPausable: boolean = false;
     _isPermint: boolean = false;
     _isFlashMint: boolean = false;
@@ -31,6 +32,7 @@ class ContractMapper {
         this.contract = new Contract_DevBuilder()
             .setInheritances([TOKEN_TYPE])
             .setVersion('^0.8.20')
+            .setName("")
             .setContractBody(new ContractBody_Dev({
                 contractConstructor: new Constructor_Dev({
                     functionBody: "",
@@ -47,8 +49,10 @@ class ContractMapper {
         return this.contract;
     }
     setName(name: String): ContractMapper {
+        if (name === "") {
+            return this;
+        }
         // this is the setup for assign the name for the token
-
         //set the name of the contract
         this.contract.name = name;
 
@@ -72,7 +76,9 @@ class ContractMapper {
         return this;
     }
     setSymbol = (symbol: String) => {
-
+        if (symbol === "") {
+            return this;
+        }
         const currentERC20ModifierCall: ModifierCall_Dev | undefined = this.contract
             .contractBody
             ?._contractConstructor
@@ -90,6 +96,41 @@ class ContractMapper {
         this._symbol = symbol;
         return this;
     }
+    setPermit = (amount: number) => {
+        if (amount <= 0) {
+            return this;
+        }
+        const permitCommand = `_mint(msg.sender, ${amount} * 10 ** decimals());`;
+        if (this.contract.contractBody?._contractConstructor) {
+            if (this.contract.contractBody._contractConstructor._functionBody === "") {
+                this.contract.contractBody._contractConstructor._functionBody += permitCommand;
+            } else {
+                this.contract.contractBody._contractConstructor._functionBody += `\n${permitCommand}`;
+            }
+        }
+        return this;
+    }
+    setIsBurnable = (isBurnable: boolean) => {
+        const importList = this.contract.importList;
+        const burnableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol';
+        if (isBurnable) {
+            if (!importList.includes(burnableImport)) {
+                importList.push(burnableImport);
+            }
+        } else {
+            const index = importList.indexOf(burnableImport);
+            if (index > -1) {
+                importList.splice(index, 1);
+            }
+        }
+        this._isBurnable = isBurnable;
+        return this;
+    }
+    // setIsMintable = (isMintable: boolean) => {
+    //     if (this._isMintage == isMintable) return this;
+
+    // }
+
 
 }
 

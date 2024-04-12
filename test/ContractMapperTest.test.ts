@@ -81,4 +81,32 @@ constructor() ERC20("Antrium", "ANT"){}
 }`
         expect(contract.toString()).toBe(expectRes);
     })
+    test('Test set Permit', () => {
+        const contract = new ContractMapper().setName("Antrium").setPermit(99).getContract();
+        const expectRes: String =
+            `SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+contract Antrium is ERC20{
+constructor() ERC20("Antrium", ""){
+_mint(msg.sender, 99 * 10 ** decimals());
+}
+}`;
+        expect(contract.toString()).toBe(expectRes);
+    });
+    test('test setIsBurnable', () => {
+        const contract = new ContractMapper().setName("Antrium").setPermit(99).setIsBurnable(false).setIsBurnable(true).getContract();
+        const expectRes: String =
+            `SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+contract Antrium is ERC20{
+constructor() ERC20("Antrium", ""){
+_mint(msg.sender, 99 * 10 ** decimals());
+}
+}`;
+        expect(contract.toString()).toBe(expectRes);
+
+    });
 });
