@@ -12,7 +12,7 @@ class ModifierCall_Dev implements ContractElement {
         args && (this._args = args);
     }
     toString = (): String => {
-        let res = `${this._name}(${this._args.map((item, index) => index === 0 ? ('"' + item + '"') : (' ' + ('"' + item + '"')))})`
+        let res = `${this._name}(${this._args.map((item, index) => index === 0 ? item : (' ' + item))})`
         while (res.charAt(0) === ' ' || res.charAt(0) === ',') {
             res = res.slice(1);
         }

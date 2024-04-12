@@ -6,7 +6,7 @@ import ModifierCall_Dev from "../src/logic/classes/ModifierCall_Dev";
 
 describe('Contract_Dev', () => {
     test('Test Contract_Dev toString Function', () => {
-        const expectRes = 'SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\ncontract TestContract is BaseContract{}';
+        const expectRes = 'SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\ncontract TestContract is BaseContract{\nconstructor(){}\n}';
         const contract = new Contract_Dev({
             name: "TestContract",
             contractBody: new ContractBody_Dev({
@@ -15,7 +15,7 @@ describe('Contract_Dev', () => {
                 })
             }),
             inheritances: ["BaseContract"],
-            version: "0.8.0",
+            version: "^0.8.0",
             isAbstract: false,
             imports: [],
         });
@@ -23,16 +23,15 @@ describe('Contract_Dev', () => {
     }
     ); // Removed extra arguments
     test('Test if contract body is contained in toString function', () => {
-        const expectRes = 'SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\ncontract MyToken is ERC20{\nconstructor() ERC20("MyToken, ""){}';
+        const expectRes = 'SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\ncontract MyToken is ERC20{\nconstructor() ERC20("Antrium", ""){}\n}';
         const contract: String = new Contract_DevBuilder()
-            .setName("Antrium")
+            .setName("MyToken")
             .setInheritances(["ERC20"])
-            .setImports(["@openzeppelin/contracts/token/ERC20/ERC20.sol"])
             .setVersion("^0.8.20")
             .setContractBody(new ContractBody_Dev({
                 contractConstructor: new Constructor_Dev({
                     functionBody: "",
-                    modifierCallList: [new ModifierCall_Dev({ name: "ERC20", args: ["Antrium"] })]
+                    modifierCallList: [new ModifierCall_Dev({ name: "ERC20", args: ["\"Antrium\"", "\"\""] })]
                 })
             }))
             .build().toString();

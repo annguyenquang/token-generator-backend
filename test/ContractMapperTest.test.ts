@@ -71,7 +71,7 @@ describe('ContractMapper', () => {
 
     })
     test('Test combine the setName, setSymbol', () => {
-        const contract = new ContractMapper().setName("Antrium").setSymbol("ANT").setName("abc").setName('Antrium').setSymbol('ANT').getContract();
+        const contract = new ContractMapper().setName("Antrium").setSymbol("ANT").setName("abc").setName('\"Antrium\"').setSymbol('\"ANT\"').getContract();
         const expectRes: String =
             `SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
