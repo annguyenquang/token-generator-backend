@@ -36,7 +36,7 @@ class ContractMapper {
                     functionBody: "",
                     modifierCallList: [new ModifierCall_Dev({
                         name: TOKEN_TYPE,
-                        args: ["", ""]
+                        args: [`""`, `""`]
                     })]
                 })
             }))
@@ -61,7 +61,7 @@ class ContractMapper {
         if (currentERC20ModifierCall === undefined) {
             throw new Error("The ERC20 modifier call is not found");
         }
-        const ERC20ModifierCall = new ModifierCall_Dev({ name: TOKEN_TYPE, args: [name, currentERC20ModifierCall._args[1]] })
+        const ERC20ModifierCall = new ModifierCall_Dev({ name: TOKEN_TYPE, args: [`"${name}"`, currentERC20ModifierCall._args[1]] })
         const newModifierCallList: ModifierCall_Dev[] = [ERC20ModifierCall, ...this.contract.contractBody?._contractConstructor._modifierCallList.slice(1) ?? []]
         if (this.contract.contractBody?._contractConstructor) {
             this.contract.contractBody._contractConstructor._modifierCallList = newModifierCallList;
@@ -82,7 +82,7 @@ class ContractMapper {
             throw new Error("The ERC20 modifier call is not found");
         }
 
-        const ERC20ModifierCall = new ModifierCall_Dev({ name: TOKEN_TYPE, args: [currentERC20ModifierCall._args[0], symbol] })
+        const ERC20ModifierCall = new ModifierCall_Dev({ name: TOKEN_TYPE, args: [currentERC20ModifierCall._args[0], `"${symbol}"`] })
         const newModifierCallList: ModifierCall_Dev[] = [ERC20ModifierCall, ...this.contract.contractBody?._contractConstructor._modifierCallList.slice(1) ?? []]
         if (this.contract.contractBody?._contractConstructor) {
             this.contract.contractBody._contractConstructor._modifierCallList = newModifierCallList;

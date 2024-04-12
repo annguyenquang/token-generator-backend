@@ -23,7 +23,7 @@ describe('ContractMapper', () => {
             .setContractBody(new ContractBody_Dev({
                 contractConstructor: new Constructor_Dev({
                     functionBody: "",
-                    modifierCallList: [new ModifierCall_Dev({ name: "ERC20", args: ["Antrium", ""] })]
+                    modifierCallList: [new ModifierCall_Dev({ name: "ERC20", args: ["\"Antrium\"", "\"\""] })]
                 })
             }))
             .build().toString();
@@ -44,7 +44,7 @@ describe('ContractMapper', () => {
             .setContractBody(new ContractBody_Dev({
                 contractConstructor: new Constructor_Dev({
                     functionBody: "",
-                    modifierCallList: [new ModifierCall_Dev({ name: "ERC20", args: ["Antrium", ""] })]
+                    modifierCallList: [new ModifierCall_Dev({ name: "ERC20", args: ["\"Antrium\"", "\"\""] })]
                 })
             }))
             .build().toString();
@@ -63,7 +63,7 @@ describe('ContractMapper', () => {
             .setContractBody(new ContractBody_Dev({
                 contractConstructor: new Constructor_Dev({
                     functionBody: "",
-                    modifierCallList: [new ModifierCall_Dev({ name: "ERC20", args: ["", "ANT"] })]
+                    modifierCallList: [new ModifierCall_Dev({ name: "ERC20", args: ["\"\"", "\"ANT\""] })]
                 })
             }))
             .build().toString();
@@ -71,7 +71,7 @@ describe('ContractMapper', () => {
 
     })
     test('Test combine the setName, setSymbol', () => {
-        const contract = new ContractMapper().setName("Antrium").setSymbol("ANT").setName("abc").setName('\"Antrium\"').setSymbol('\"ANT\"').getContract();
+        const contract = new ContractMapper().setName("Antrium").setSymbol("ANT").setName("abc").setName('Antrium').setSymbol('ANT').getContract();
         const expectRes: String =
             `SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
