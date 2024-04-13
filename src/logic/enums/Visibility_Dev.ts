@@ -1,8 +1,8 @@
 enum Visibility_Dev {
-    PRIVATE,
-    PUBLIC,
-    INTERNAL,
-    EXTERNAL,
+    PRIVATE = 'private',
+    PUBLIC = 'public',
+    INTERNAL = 'internal',
+    EXTERNAL = 'external',
 }
 
 export default Visibility_Dev;

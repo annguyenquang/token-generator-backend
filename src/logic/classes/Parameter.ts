@@ -38,7 +38,7 @@ class Parameter implements ContractElement {
     }
 
     toString = () => {
-        const location = this._dataLocation === DataLocation_Dev.NONE ? " " : " " + Object.values(DataLocation_Dev)[this._dataLocation] + " ";
+        const location = this._dataLocation === DataLocation_Dev.NONE ? " " : " " + this._dataLocation + " ";
         return (
             `${this._type}${location}${this._name}`
         );

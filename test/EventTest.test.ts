@@ -8,7 +8,7 @@ const error2 = new Event_Dev("widthdraw", [
     new Parameter("uint256", "age", DataLocation_Dev.NONE),
     new Parameter("string", "name", DataLocation_Dev.MEMORY)
 ])
-const expectRes2 = "event widthdraw( uint256 age, string MEMORY name);";
+const expectRes2 = "event widthdraw( uint256 age, string memory name);";
 
 describe("Test toString() of Parameter", () => {
     test('Test case 1, (the SM event dont have Parameter)', () => {

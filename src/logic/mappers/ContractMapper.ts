@@ -5,6 +5,12 @@ import Upgradeability_Dev from "../enums/Upgradeability_Dev";
 import ContractBody_Dev from "../classes/ContractBody_Dev";
 import ModifierCall_Dev from "../classes/ModifierCall_Dev";
 import Constructor_Dev from "../classes/Constructor_Dev";
+import { FunctionBuilder, Function_Dev } from "../classes/Function_Dev";
+import Visibility_Dev from "../enums/Visibility_Dev";
+import Modifier_Dev from "../classes/Modifier_Dev";
+import OverriderSpecifier_Dev from "../classes/OverriderSpecifier_Dev";
+import DataLocation_Dev from "../enums/DataLocation_Dev";
+import { Parameter } from "../classes/Parameter";
 
 type TokenInformation = {
     securityContact?: String;
@@ -48,6 +54,7 @@ class ContractMapper {
     getContract = (): Contract_Dev => {
         return this.contract;
     }
+
     setName(name: String): ContractMapper {
         if (name === "") {
             return this;
@@ -75,6 +82,7 @@ class ContractMapper {
         this._name = name;
         return this;
     }
+
     setSymbol = (symbol: String) => {
         if (symbol === "") {
             return this;
@@ -96,6 +104,7 @@ class ContractMapper {
         this._symbol = symbol;
         return this;
     }
+
     setPermit = (amount: number) => {
         if (amount <= 0) {
             return this;
@@ -110,6 +119,7 @@ class ContractMapper {
         }
         return this;
     }
+
     setIsBurnable = (isBurnable: boolean) => {
         const importList = this.contract.importList;
         const burnableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol';
@@ -124,6 +134,94 @@ class ContractMapper {
             }
         }
         this._isBurnable = isBurnable;
+        return this;
+    }
+
+    setIsPausable = (isPausable: boolean) => {
+        const ERC20PausableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol';
+        const OwnableImport = '@openzeppelin/contracts/access/Ownable.sol';
+        if (this._isPausable) {
+            if (isPausable) {
+                //DO NOTHING
+            } else {
+                //REMOVE IMPORTS
+                const indexERC20PausableImp = this.contract.importList.indexOf(ERC20PausableImport);
+                if (indexERC20PausableImp > -1) {
+                    this.contract.importList.splice(indexERC20PausableImp, 1);
+                }
+                const indexOwnableImp = this.contract.importList.indexOf(OwnableImport);
+                if (indexOwnableImp > -1) {
+                    this.contract.importList.splice(indexOwnableImp, 1);
+                }
+                // REMOVE CONTRACT INHERITANCE
+                const indexERC20Pausable = this.contract.inheritances.indexOf('ERC20Pausable');
+                if (indexERC20Pausable > -1) {
+                    this.contract.inheritances.splice(indexERC20Pausable, 1);
+                }
+                const indexOwnable = this.contract.inheritances.indexOf('Ownable');
+                if (indexOwnable > -1) {
+                    this.contract.inheritances.splice(indexOwnable, 1);
+                }
+                // REMOVE CONTRACT FUNCTIONS
+                const contractBody = this.contract.contractBody;
+                if (contractBody && contractBody._functionList) {
+
+                    const pauseFunctionIndex = contractBody._functionList.findIndex((item) => item._name === 'pause');
+                    if (pauseFunctionIndex > -1) {
+                        contractBody._functionList.splice(pauseFunctionIndex, 1);
+                    }
+                    const unpauseFunctionIndex = contractBody._functionList.findIndex((item) => item._name === 'unpause');
+                    if (unpauseFunctionIndex > -1) {
+                        contractBody?._functionList.splice(unpauseFunctionIndex, 1);
+                    }
+                    const updateFunctionIndex = contractBody._functionList.findIndex((item) => item._name === '_update');
+                    if (updateFunctionIndex > -1) {
+                        contractBody._functionList.splice(updateFunctionIndex, 1);
+                    }
+                }
+            }
+        } else {
+            if (isPausable) {
+                //ADD IMPORTS
+
+                this.contract.importList.push(ERC20PausableImport);
+                this.contract.importList.push(OwnableImport);
+                // ADD CONTRACT INHERITANCE
+
+                this.contract.inheritances.push('ERC20Pausable');
+                this.contract.inheritances.push('Ownable');
+                // ADD CONTRACT FUNCTIONS
+                // add pause()
+                const pauseFunction: Function_Dev = new FunctionBuilder()
+                    .setName('pause')
+                    .setVisibility(Visibility_Dev.PUBLIC)
+                    .setModifierList([new Modifier_Dev('onlyOwner', [])])
+                    .setFunctionBody('_pause();').build();
+                this.contract.contractBody._functionList.push(pauseFunction);
+                // add unpause()
+                const unpauseFunction: Function_Dev = new FunctionBuilder()
+                    .setName('unpause')
+                    .setVisibility(Visibility_Dev.PUBLIC)
+                    .setModifierList([new Modifier_Dev('onlyOwner', [])])
+                    .setFunctionBody('_unpause();').build();
+                this.contract.contractBody._functionList.push(unpauseFunction);
+                // add _update()
+                const updateFunction: Function_Dev = new FunctionBuilder()
+                    .setName('_update')
+                    .setVisibility(Visibility_Dev.INTERNAL)
+                    .setParameterList([
+                        new Parameter('address', 'from', DataLocation_Dev.NONE),
+                        new Parameter('address', 'to', DataLocation_Dev.NONE),
+                        new Parameter('uint256', 'value', DataLocation_Dev.NONE)
+                    ])
+                    .setOverrideSpecifier(new OverriderSpecifier_Dev([TOKEN_TYPE, `${TOKEN_TYPE}Pausable`]))
+                    .setFunctionBody('super._update(from, to, value);')
+                    .build();
+                this.contract.contractBody._functionList.push(updateFunction);
+            } else {
+                //DO NOTHING
+            }
+        }
         return this;
     }
     // setIsMintable = (isMintable: boolean) => {

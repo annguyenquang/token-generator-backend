@@ -1,8 +1,8 @@
 enum DataLocation_Dev {
-    NONE,
-    MEMORY,
-    STORAGE,
-    CALLDATA,
+    NONE = '',
+    MEMORY = 'memory',
+    STORAGE = 'storage',
+    CALLDATA = 'calldata',
 }
 
 

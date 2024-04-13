@@ -1,12 +1,13 @@
 import { ContractElement } from "../interfaces/ContractElement"
 import Visitable from "../interfaces/Visitable";
 import Visitor from "../visitors/Visitor";
+import Constructor_Dev from "./Constructor_Dev";
 import ContractBody_Dev from "./ContractBody_Dev";
 class Contract_Dev implements ContractElement, Visitable {
     name: String;
     isAbstract: boolean = false;
     inheritances: String[] = [];
-    contractBody?: ContractBody_Dev;
+    contractBody: ContractBody_Dev = new ContractBody_Dev({ contractConstructor: new Constructor_Dev({ functionBody: '' }) });
     importList: String[] = [];
     version: String = "0.8.0";
     constructor(options: {
@@ -26,7 +27,7 @@ class Contract_Dev implements ContractElement, Visitable {
             imports = []
         } = options;
         this.name = name;
-        this.contractBody = contractBody;
+        contractBody && (this.contractBody = contractBody);
         this.isAbstract = isAbstract;
         this.inheritances = inheritances;
         this.version = version;

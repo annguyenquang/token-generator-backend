@@ -12,16 +12,16 @@ import Struct_Dev from "./Struct_Dev";
 class ContractBody_Dev implements ContractElement {
 
     _contractConstructor: Constructor_Dev;
-    _functionList?: Function_Dev[];
-    _modifierList?: Modifier_Dev[];
-    _fallbackList?: Fallback_Dev[];
-    _structList?: Struct_Dev[];
-    _enumList?: Enum_Dev[];
-    _stateList?: State_Dev[];
-    _eventList?: Event_Dev[];
-    _errorList?: Error_Dev[];
-    _userDefineValueTypeList?: String[];
-    _usingDirectiveList?: String[];
+    _functionList: Function_Dev[] = [];
+    _modifierList: Modifier_Dev[] = [];
+    _fallbackList: Fallback_Dev[] = [];
+    _structList: Struct_Dev[] = [];
+    _enumList: Enum_Dev[] = [];
+    _stateList: State_Dev[] = [];
+    _eventList: Event_Dev[] = [];
+    _errorList: Error_Dev[] = [];
+    _userDefineValueTypeList: String[] = [];
+    _usingDirectiveList: String[] = [];
 
     constructor({
         contractConstructor,
@@ -64,6 +64,10 @@ class ContractBody_Dev implements ContractElement {
     toString = (): String => {
         let res = '';
         res += this._contractConstructor.toString();
+        if (this._functionList.length > 0) {
+
+            res += '\n' + Function_Dev.listToString(this._functionList);
+        }
         return (res);
     }
 

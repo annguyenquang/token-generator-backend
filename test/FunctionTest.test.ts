@@ -22,7 +22,7 @@ describe("Test toString of Function", () => {
             returns: [new Parameter("int", "d"), new Parameter("int256", "e"), new Parameter("string", "f")],
         });
 
-        const expectRes = `function widthdraw(int a, int256 b, string MEMORY c) PUBLIC payable virtual initializer override(Contract1, Contract2) returns(int d, int256 e, string f){}`;
+        const expectRes = `function widthdraw(int a, int256 b, string memory c) public payable virtual initializer override(Contract1, Contract2) returns(int d, int256 e, string f){}`;
         expect(func.toString()).toBe(expectRes);
     })
     test("Test case 2: (blank function)", () => {
@@ -31,7 +31,7 @@ describe("Test toString of Function", () => {
             functionBody: "int a = 1;\nint b = a;",
         });
         const expectRes =
-            "function add() INTERNAL{\n" +
+            "function add() internal{\n" +
             "int a = 1;\n" +
             "int b = a;\n}";
 
@@ -54,7 +54,7 @@ describe("Test toString of Function", () => {
             returns: [new ParameterBuilder().setName('d').setType('int').build(), new Parameter("int256", "e"), new Parameter("string", "f")],
         });
 
-        const expectRes = `function add(int a, int256 b, string MEMORY c) PUBLIC payable virtual initializer override(Contract1, Contract2) returns(int d, int256 e, string f){}`;
+        const expectRes = `function add(int a, int256 b, string memory c) public payable virtual initializer override(Contract1, Contract2) returns(int d, int256 e, string f){}`;
         expect(func.toString()).toBe(expectRes);
     });
     test("Test case 5: Test FunctionBuilder", () => {
@@ -68,7 +68,7 @@ describe("Test toString of Function", () => {
             .setReturns([new Parameter("int", "d"), new Parameter("int256", "e"), new Parameter("string", "f")])
             .setFunctionBody("int a = 1;\nint b = a;")
             .build();
-        const expectRes = `function add(int a, int256 b, string MEMORY c) PUBLIC payable virtual initializer override(Contract1, Contract2) returns(int d, int256 e, string f){\nint a = 1;\nint b = a;\n}`;
+        const expectRes = `function add(int a, int256 b, string memory c) public payable virtual initializer override(Contract1, Contract2) returns(int d, int256 e, string f){\nint a = 1;\nint b = a;\n}`;
         expect(func.toString()).toBe(expectRes);
     })
 })

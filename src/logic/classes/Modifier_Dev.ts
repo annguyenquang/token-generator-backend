@@ -17,6 +17,16 @@ class Modifier_Dev implements ContractElement {
         return (res
         );
     }
+    static listToString = (modifierList: Modifier_Dev[]): String => {
+        let res = '';
+        for (let i = 0; i < modifierList.length; i++) {
+            res += modifierList[i].toString() + ' ';
+        }
+        if (res[res.length - 1] === ' ') {
+            res = res.slice(0, res.length - 1);
+        }
+        return res;
+    }
 }
 
 export default Modifier_Dev;

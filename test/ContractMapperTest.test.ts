@@ -27,7 +27,6 @@ describe('ContractMapper', () => {
                 })
             }))
             .build().toString();
-        console.log(expectRes);
         expect(contract.toString()).toBe(expectRes);
 
     });
@@ -94,10 +93,41 @@ _mint(msg.sender, 99 * 10 ** decimals());
 }`;
         expect(contract.toString()).toBe(expectRes);
     });
-    test('test setIsBurnable', () => {
-        const contract = new ContractMapper().setName("Antrium").setPermit(99).setIsBurnable(false).setIsBurnable(true).getContract();
+
+
+    test('Test call the setIsPausable(true) ', () => {
+        const contract = new ContractMapper()
+            .setName("Antrium")
+            .setPermit(99)
+            .setIsPausable(true).getContract();
         const expectRes: String =
             `SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+contract Antrium is ERC20, ERC20Pausable, Ownable{
+constructor() ERC20("Antrium", ""){
+_mint(msg.sender, 99 * 10 ** decimals());
+}
+function pause() public onlyOwner(){
+_pause();
+}
+function unpause() public onlyOwner(){
+_unpause();
+}
+function _update(address from, address to, uint256 value) internal override(ERC20, ERC20Pausable){
+super._update(from, to, value);
+}
+}`;
+        expect(contract.toString()).toBe(expectRes);
+    });
+
+});
+test('test setIsBurnable', () => {
+    const contract = new ContractMapper().setName("Antrium").setPermit(99).setIsBurnable(false).setIsBurnable(true).getContract();
+    const expectRes: String =
+        `SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
@@ -106,7 +136,6 @@ constructor() ERC20("Antrium", ""){
 _mint(msg.sender, 99 * 10 ** decimals());
 }
 }`;
-        expect(contract.toString()).toBe(expectRes);
+    expect(contract.toString()).toBe(expectRes);
 
-    });
-});
+}); 

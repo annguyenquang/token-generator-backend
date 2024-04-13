@@ -20,7 +20,7 @@ class State_Dev implements ContractElement {
     }
     toString = (): String => {
         return (`${this._type}`
-            + `${this._visibility ? ' ' + Object.values(Visibility_Dev)[this._visibility] : ''}`
+            + `${this._visibility ? ' ' + this._visibility : ''}`
             + `${this._isImmutable ? ' immutable' : ''}`
             + `${this._isConstant ? ' constant' : ''}`
             + `${this._overrideList?.listToString()}`)

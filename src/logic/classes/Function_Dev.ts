@@ -62,8 +62,9 @@ class Function_Dev implements ContractElement {
             "function" +
             ` ${this._name}`
             + `(${Parameter.listToString(this._parameterList)})`
-            + `${this._visibility && " " + Object.values(Visibility_Dev)[this._visibility]}`
-            + `${this._stateMutability ? "" + Object.values(StateMutability)[this._stateMutability] : ""}`
+            + `${this._visibility ? (" " + this._visibility) : ""}`
+            + `${this._modifierList.length > 0 ? (" " + Modifier_Dev.listToString(this._modifierList)) : ""}`
+            + `${this._stateMutability !== StateMutability.NONE ? (" " + this._stateMutability) : ""}`
             + `${this._isPayable ? " payable" : ""}`
             + `${this._isVirtual ? " virtual" : ""}`
             + `${this._extraKeyWord.length !== 0 ? ` ${this._extraKeyWord.join(" ")}` : ""}`
@@ -74,6 +75,16 @@ class Function_Dev implements ContractElement {
             + "}"
 
         )
+    }
+    static listToString = (functionList: Function_Dev[]): String => {
+        let res = '';
+        for (let i = 0; i < functionList.length; i++) {
+            res += functionList[i].toString() + '\n';
+        }
+        if (res[res.length - 1] === '\n') {
+            res = res.slice(0, res.length - 1);
+        }
+        return res;
     }
 }
 

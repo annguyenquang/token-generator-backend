@@ -1,7 +1,7 @@
 enum StateMutability {
-    NONE,
-    VIEW,
-    PURE
+    NONE = "",
+    VIEW = "view",
+    PURE = "pure",
 }
 
 export default StateMutability;
