@@ -1,9 +1,8 @@
-import e, { Express, Router } from 'express';
-const dotenv = require('dotenv');
-const morgan = require('morgan');
+import e from 'express';
+import dotenv from 'dotenv';
+import morgan from 'morgan';
 import route from './routes/index';
-const router = Router();
-
+import bodyParser from 'body-parser';
 const db = require("./config/db");
 //connect to db
 db.connect();
@@ -14,7 +13,8 @@ const PORT = process.env.PORT || 3002;
 
 const app = e();
 app.use(morgan("combined"));
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(router)
 
 route(app);
