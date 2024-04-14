@@ -35,8 +35,6 @@ describe("Test toString of Function", () => {
             "int a = 1;\n" +
             "int b = a;\n}";
 
-        console.log("funct", func.toString());
-        console.log("expect", expectRes);
 
         expect(func.toString()).toBe(expectRes);
     })

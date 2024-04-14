@@ -1,7 +1,8 @@
 import { Express } from "express";
-const tokenRouter = require("./TokenRoutes");
-
+import tokenRouter from "./TokenRoutes";
+import contractCodeRouter from "./ContractCodeRoutes";
 function route(app: Express) {
+    app.use("/code", contractCodeRouter);
     app.use("/token", tokenRouter);
 }
 
