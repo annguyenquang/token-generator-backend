@@ -5,7 +5,7 @@ import Constructor_Dev from '../logic/classes/Constructor_Dev';
 import ModifierCall_Dev from '../logic/classes/ModifierCall_Dev';
 import ContractMapper from '../logic/mappers/ERC20Mapper';
 class ContractCodeController {
-    getContractCode(req: Request, res: Response, next: NextFunction) {
+    static getContractCode(req: Request, res: Response) {
         const contractmapper: ContractMapper = new ContractMapper();
         const query = JSON.parse(JSON.stringify(req.query));
         console.log("QUERY:", query);
@@ -18,13 +18,14 @@ class ContractCodeController {
         query["permit"] && contractmapper.setPermit(query["permit"]);
         query["isburnable"] && contractmapper.setIsBurnable(query["isburnable"] == 1 ? true : false);
         query["ispausable"] && contractmapper.setIsPausable(query["ispausable"] == 1 ? true : false);
-        query["ismintable"] && contractmapper.setIsMintable(query["ismintable"] == 1 ? true : false);
-        query["isflashmintable"] && contractmapper.setIsFlashMintable(query["isflashmintable"] == 1 ? true : false);
-        const contract = contractmapper.getContract();
-        res.send({
-            contract: contract.toString()
+        query["ismintable"] && contractmapper.setIsMintable(query["ismintable"] == true ? true : false);
+        query["isflashmintable"] && contractmapper.setIsFlashMintable(query["isflashmintable"] == 'true' ? true : false);
+        console.log("CONTRACT MAPPER:", contractmapper);
+
+        res.json({
+            contract: contractmapper.getContract().toString()
         });
 
     }
 }
-export default new ContractCodeController;
+export default ContractCodeController;

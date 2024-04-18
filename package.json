@@ -5,14 +5,16 @@
   "main": "src/index1.ts",
   "scripts": {
     "build": "npx tsc",
-    "start": "nodemon --inspect dist/index.js",
+    "start": "nodemon --inspect dist/src/index.js",
     "dev": "concurrently \"tsc -w\" \"nodemon dist/src/index.js\"",
     "test": "jest"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.17",
     "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongoose": "^8.2.4",
