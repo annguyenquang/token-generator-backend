@@ -81,7 +81,7 @@ constructor() ERC20("Antrium", "ANT"){}
         expect(contract.toString()).toBe(expectRes);
     })
     test('Test set Permit', () => {
-        const contract = new ContractMapper().setName("Antrium").setPermit(99).getContract();
+        const contract = new ContractMapper().setName("Antrium").setPremint(99).getContract();
         const expectRes: String =
             `SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -98,7 +98,7 @@ _mint(msg.sender, 99 * 10 ** decimals());
     test('Test call the setIsPausable(true) ', () => {
         const contract = new ContractMapper()
             .setName("Antrium")
-            .setPermit(99)
+            .setPremint(99)
             .setIsPausable(true).getContract();
         const expectRes: String =
             `SPDX-License-Identifier: MIT
@@ -123,7 +123,7 @@ super._update(from, to, value);
         expect(contract.toString()).toBe(expectRes);
     });
     test('test setIsBurnable', () => {
-        const contract = new ContractMapper().setName("Antrium").setPermit(99).setIsBurnable(false).setIsBurnable(true).getContract();
+        const contract = new ContractMapper().setName("Antrium").setPremint(99).setIsBurnable(false).setIsBurnable(true).getContract();
         const expectRes: String =
             `SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -134,7 +134,7 @@ constructor() ERC20("Antrium", ""){
 _mint(msg.sender, 99 * 10 ** decimals());
 }
 }`;
-        expect(new ContractMapper().setName("Antrium").setPermit(99).setIsBurnable(true).getContract().toString()).toBe(expectRes);
+        expect(new ContractMapper().setName("Antrium").setPremint(99).setIsBurnable(true).getContract().toString()).toBe(expectRes);
 
     })
     // test('Test setIsMintable', () => {

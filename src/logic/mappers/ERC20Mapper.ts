@@ -12,6 +12,7 @@ import OverriderSpecifier_Dev from "../classes/OverriderSpecifier_Dev";
 import DataLocation_Dev from "../enums/DataLocation_Dev";
 import { Parameter, ParameterBuilder } from "../classes/Parameter";
 import ContractMapper from "../interfaces/ContractMapper";
+import { setMaxIdleHTTPParsers } from "http";
 
 type TokenInformation = {
     securityContact?: String;
@@ -106,7 +107,7 @@ class ERC20Mapper implements ContractMapper {
         return this;
     }
 
-    setPermit = (amount: number) => {
+    setPremint = (amount: number) => {
         if (amount <= 0) {
             return this;
         }
@@ -120,7 +121,24 @@ class ERC20Mapper implements ContractMapper {
         }
         return this;
     }
-
+    setPermit = (isPermit: boolean) => {
+        if (this._isPermint && isPermit) {
+            return this;
+        } else {
+            const permitImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
+            const importList = this.contract.importList;
+            if (isPermit) {
+                if (!importList.includes(permitImport)) {
+                    importList.push(permitImport);
+                }
+            } else {
+                const idx = importList.findIndex((imp) => imp === permitImport);
+                if (idx > -1) {
+                    importList.splice(idx, 1);
+                }
+            }
+        }
+    }
     setIsBurnable = (isBurnable: boolean) => {
         const importList = this.contract.importList;
         const burnableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol';
@@ -141,46 +159,8 @@ class ERC20Mapper implements ContractMapper {
     setIsPausable = (isPausable: boolean) => {
         const ERC20PausableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol';
         const OwnableImport = '@openzeppelin/contracts/access/Ownable.sol';
-        if (this._isPausable) {
-            if (isPausable) {
-                //DO NOTHING
-            } else {
-                //REMOVE IMPORTS
-                const indexERC20PausableImp = this.contract.importList.indexOf(ERC20PausableImport);
-                if (indexERC20PausableImp > -1) {
-                    this.contract.importList.splice(indexERC20PausableImp, 1);
-                }
-                const indexOwnableImp = this.contract.importList.indexOf(OwnableImport);
-                if (indexOwnableImp > -1) {
-                    this.contract.importList.splice(indexOwnableImp, 1);
-                }
-                // REMOVE CONTRACT INHERITANCE
-                const indexERC20Pausable = this.contract.inheritances.indexOf('ERC20Pausable');
-                if (indexERC20Pausable > -1) {
-                    this.contract.inheritances.splice(indexERC20Pausable, 1);
-                }
-                const indexOwnable = this.contract.inheritances.indexOf('Ownable');
-                if (indexOwnable > -1) {
-                    this.contract.inheritances.splice(indexOwnable, 1);
-                }
-                // REMOVE CONTRACT FUNCTIONS
-                const contractBody = this.contract.contractBody;
-                if (contractBody && contractBody._functionList) {
-
-                    const pauseFunctionIndex = contractBody._functionList.findIndex((item) => item._name === 'pause');
-                    if (pauseFunctionIndex > -1) {
-                        contractBody._functionList.splice(pauseFunctionIndex, 1);
-                    }
-                    const unpauseFunctionIndex = contractBody._functionList.findIndex((item) => item._name === 'unpause');
-                    if (unpauseFunctionIndex > -1) {
-                        contractBody?._functionList.splice(unpauseFunctionIndex, 1);
-                    }
-                    const updateFunctionIndex = contractBody._functionList.findIndex((item) => item._name === '_update');
-                    if (updateFunctionIndex > -1) {
-                        contractBody._functionList.splice(updateFunctionIndex, 1);
-                    }
-                }
-            }
+        if (this._isPausable && isPausable) {
+            return this;
         } else {
             if (isPausable) {
                 //ADD IMPORTS
@@ -225,7 +205,41 @@ class ERC20Mapper implements ContractMapper {
                     .build();
                 this.contract.contractBody._functionList.push(updateFunction);
             } else {
-                //DO NOTHING
+                //REMOVE IMPORTS
+                const indexERC20PausableImp = this.contract.importList.indexOf(ERC20PausableImport);
+                if (indexERC20PausableImp > -1) {
+                    this.contract.importList.splice(indexERC20PausableImp, 1);
+                }
+                const indexOwnableImp = this.contract.importList.indexOf(OwnableImport);
+                if (indexOwnableImp > -1) {
+                    this.contract.importList.splice(indexOwnableImp, 1);
+                }
+                // REMOVE CONTRACT INHERITANCE
+                const indexERC20Pausable = this.contract.inheritances.indexOf('ERC20Pausable');
+                if (indexERC20Pausable > -1) {
+                    this.contract.inheritances.splice(indexERC20Pausable, 1);
+                }
+                const indexOwnable = this.contract.inheritances.indexOf('Ownable');
+                if (indexOwnable > -1) {
+                    this.contract.inheritances.splice(indexOwnable, 1);
+                }
+                // REMOVE CONTRACT FUNCTIONS
+                const contractBody = this.contract.contractBody;
+                if (contractBody && contractBody._functionList) {
+
+                    const pauseFunctionIndex = contractBody._functionList.findIndex((item) => item._name === 'pause');
+                    if (pauseFunctionIndex > -1) {
+                        contractBody._functionList.splice(pauseFunctionIndex, 1);
+                    }
+                    const unpauseFunctionIndex = contractBody._functionList.findIndex((item) => item._name === 'unpause');
+                    if (unpauseFunctionIndex > -1) {
+                        contractBody?._functionList.splice(unpauseFunctionIndex, 1);
+                    }
+                    const updateFunctionIndex = contractBody._functionList.findIndex((item) => item._name === '_update');
+                    if (updateFunctionIndex > -1) {
+                        contractBody._functionList.splice(updateFunctionIndex, 1);
+                    }
+                }
             }
         }
         return this;
@@ -237,20 +251,21 @@ class ERC20Mapper implements ContractMapper {
             return this;
         } else {
             const importList = this.contract.importList;
+            const inheritances = this.contract.inheritances;
             if (isFlashMint) {
                 if (!importList.includes(ERC20FlashMintImport)) {
                     importList.push(ERC20FlashMintImport);
                 }
-                if (!this.contract.inheritances.includes(ERC20FlashMintable)) {
-                    this.contract.inheritances.push(ERC20FlashMintable);
+                if (!inheritances.includes(ERC20FlashMintable)) {
+                    inheritances.push(ERC20FlashMintable);
                 }
             } else {
                 const index = importList.indexOf(ERC20FlashMintImport);
                 if (index > -1) {
                     importList.splice(index, 1);
                 }
-                if (this.contract.inheritances.includes(ERC20FlashMintable)) {
-                    this.contract.inheritances.splice(this.contract.inheritances.indexOf(ERC20FlashMintable), 1);
+                if (inheritances.includes(ERC20FlashMintable)) {
+                    inheritances.splice(this.contract.inheritances.indexOf(ERC20FlashMintable), 1);
                 }
             }
         }
@@ -308,6 +323,7 @@ class ERC20Mapper implements ContractMapper {
                 }
             }
         }
+        return this;
     }
 
     // 
