@@ -2,7 +2,6 @@ import Visibility_Dev from "../enums/Visibility_Dev";
 import { ContractElement } from "../interfaces/ContractElement";
 import { Parameter } from "./Parameter";
 import ModifierCall_Dev from "./ModifierCall_Dev";
-import exp from "constants";
 
 
 class Constructor_Dev implements ContractElement {

@@ -10,9 +10,8 @@ import Visibility_Dev from "../enums/Visibility_Dev";
 import Modifier_Dev from "../classes/Modifier_Dev";
 import OverriderSpecifier_Dev from "../classes/OverriderSpecifier_Dev";
 import DataLocation_Dev from "../enums/DataLocation_Dev";
-import { Parameter, ParameterBuilder } from "../classes/Parameter";
+import { Parameter } from "../classes/Parameter";
 import ContractMapper from "../interfaces/ContractMapper";
-import { setMaxIdleHTTPParsers } from "http";
 
 type TokenInformation = {
     securityContact?: String;

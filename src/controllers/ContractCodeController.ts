@@ -1,10 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
-import { Contract_DevBuilder } from '../logic/classes/Contract_Dev';
-import ContractBody_Dev from '../logic/classes/ContractBody_Dev';
-import Constructor_Dev from '../logic/classes/Constructor_Dev';
-import ModifierCall_Dev from '../logic/classes/ModifierCall_Dev';
+import { Request, Response } from 'express';
 import ERC20Mapper from '../logic/mappers/ERC20Mapper';
-import ContractMapper from '../logic/interfaces/ContractMapper';
 class ContractCodeController {
     static getContractCode = async (req: Request, res: Response) => {
         const contractmapper: ERC20Mapper = new ERC20Mapper();
