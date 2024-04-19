@@ -41,7 +41,8 @@ class Contract_Dev implements ContractElement, Visitable {
         throw new Error("Method not implemented.");
     }
     toString: () => string = (): string => {
-        let res = `SPDX-License-Identifier: ${this.license}\n`
+        let res = `// SPDX-License-Identifier: ${this.license}\n`
+            + "// Compatible with OpenZeppelin contracts ^5.0.0\n"
             + "pragma solidity " + this.version + ";\n"
             + `${this.importList.length > 0 ? `${this.importList.map((imp) => `import "${imp}";`).join("\n")}\n` : ''}`
             + `contract ${this.name} ${this.inheritances.length > 0 ? "is " + this.inheritances.join(", ") : ""}`
