@@ -10,8 +10,10 @@ class Contract_Dev implements ContractElement, Visitable {
     contractBody: ContractBody_Dev = new ContractBody_Dev({ contractConstructor: new Constructor_Dev({ functionBody: '' }) });
     importList: String[] = [];
     version: String = "0.8.0";
+    license: String = "MIT";
     constructor(options: {
         name: String,
+        license?: String,
         contractBody?: ContractBody_Dev,
         version?: String,
         isAbstract?: boolean,
@@ -24,7 +26,8 @@ class Contract_Dev implements ContractElement, Visitable {
             version = "0.8.0",
             isAbstract = false,
             inheritances = [],
-            imports = []
+            imports = [],
+            license = "MIT"
         } = options;
         this.name = name;
         contractBody && (this.contractBody = contractBody);
@@ -32,12 +35,13 @@ class Contract_Dev implements ContractElement, Visitable {
         this.inheritances = inheritances;
         this.version = version;
         this.importList = imports;
+        this.license = license;
     }
     accept(visitor: Visitor): void {
         throw new Error("Method not implemented.");
     }
     toString: () => string = (): string => {
-        let res = "SPDX-License-Identifier: MIT\n"
+        let res = `SPDX-License-Identifier: ${this.license}\n`
             + "pragma solidity " + this.version + ";\n"
             + `${this.importList.length > 0 ? `${this.importList.map((imp) => `import "${imp}";`).join("\n")}\n` : ''}`
             + `contract ${this.name} ${this.inheritances.length > 0 ? "is " + this.inheritances.join(", ") : ""}`
@@ -49,6 +53,7 @@ class Contract_Dev implements ContractElement, Visitable {
 class Contract_DevBuilder {
     private options: {
         name: String,
+        license?: String;
         contractBody?: ContractBody_Dev,
         version?: String,
         isAbstract?: boolean,
@@ -94,6 +99,11 @@ class Contract_DevBuilder {
 
     setImports(imports: String[]): Contract_DevBuilder {
         this.options.imports = imports;
+        return this;
+    }
+
+    setLicense(license: String): Contract_DevBuilder {
+        this.options.license = license;
         return this;
     }
 

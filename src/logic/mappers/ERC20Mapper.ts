@@ -56,9 +56,9 @@ class ERC20Mapper implements ContractMapper {
         return this.contract;
     }
 
-    setName(name: String): ERC20Mapper {
+    setName(name: String) {
         if (name === "") {
-            return this;
+            return;
         }
         // this is the setup for assign the name for the token
         //set the name of the contract
@@ -81,12 +81,15 @@ class ERC20Mapper implements ContractMapper {
 
         //Set mapper name property 
         this._name = name;
-        return this;
+    }
+
+    setLicense = (license: String) => {
+        this.contract.license = license;
     }
 
     setSymbol = (symbol: String) => {
         if (symbol === "") {
-            return this;
+            return;
         }
         const currentERC20ModifierCall: ModifierCall_Dev | undefined = this.contract
             .contractBody
@@ -103,12 +106,11 @@ class ERC20Mapper implements ContractMapper {
             this.contract.contractBody._contractConstructor._modifierCallList = newModifierCallList;
         }
         this._symbol = symbol;
-        return this;
     }
 
     setPremint = (amount: number) => {
         if (amount <= 0) {
-            return this;
+            return;
         }
         const permitCommand = `_mint(msg.sender, ${amount} * 10 ** decimals());`;
         if (this.contract.contractBody?._contractConstructor) {
@@ -118,11 +120,10 @@ class ERC20Mapper implements ContractMapper {
                 this.contract.contractBody._contractConstructor._functionBody += `\n${permitCommand}`;
             }
         }
-        return this;
     }
     setPermit = (isPermit: boolean) => {
         if (this._isPermint && isPermit) {
-            return this;
+            return;
         } else {
             const permitImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
             const importList = this.contract.importList;
@@ -141,25 +142,26 @@ class ERC20Mapper implements ContractMapper {
     setIsBurnable = (isBurnable: boolean) => {
         const importList = this.contract.importList;
         const burnableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol';
-        if (isBurnable) {
-            if (!importList.includes(burnableImport)) {
-                importList.push(burnableImport);
+        if (this._isBurnable && isBurnable) {
+            if (isBurnable) {
+                if (!importList.includes(burnableImport)) {
+                    importList.push(burnableImport);
+                }
+            } else {
+                const index = importList.indexOf(burnableImport);
+                if (index > -1) {
+                    importList.splice(index, 1);
+                }
             }
-        } else {
-            const index = importList.indexOf(burnableImport);
-            if (index > -1) {
-                importList.splice(index, 1);
-            }
+            this._isBurnable = isBurnable;
         }
-        this._isBurnable = isBurnable;
-        return this;
     }
 
     setIsPausable = (isPausable: boolean) => {
         const ERC20PausableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol';
         const OwnableImport = '@openzeppelin/contracts/access/Ownable.sol';
         if (this._isPausable && isPausable) {
-            return this;
+            return;
         } else {
             if (isPausable) {
                 //ADD IMPORTS
@@ -241,13 +243,12 @@ class ERC20Mapper implements ContractMapper {
                 }
             }
         }
-        return this;
     }
     setIsFlashMintable = (isFlashMint: boolean) => {
         const ERC20FlashMintImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol';
         const ERC20FlashMintable = 'ERC20FlashMint';
         if (this._isFlashMint && isFlashMint) {
-            return this;
+            return;
         } else {
             const importList = this.contract.importList;
             const inheritances = this.contract.inheritances;
@@ -279,12 +280,11 @@ class ERC20Mapper implements ContractMapper {
         //     }
         // }
         this._isFlashMint = isFlashMint;
-        return this;
     }
 
     setIsMintable = (isMintable: boolean) => {
         if (isMintable && this._isMintable) {
-            return this;
+            return;
         } else {
             const inheritances = this.contract.inheritances;
             const functionList = this.contract.contractBody._functionList;
@@ -322,7 +322,6 @@ class ERC20Mapper implements ContractMapper {
                 }
             }
         }
-        return this;
     }
 
     // 

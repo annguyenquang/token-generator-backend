@@ -13,6 +13,7 @@ class ContractCodeController {
         contractmapper.setSymbol(query["symbol"] ?? '');
         contractmapper.setPremint(query["permit"] ?? 0);
         contractmapper.setPermit(query['ispermit'] === '1' ? true : false);
+        query['license'] && contractmapper.setLicense(query['license']);
         contractmapper.setIsPausable(query["ispausable"] === '1' ? true : false);
         contractmapper.setIsBurnable(query["isburnable"] === '1' ? true : false);
         contractmapper.setIsMintable(query["ismintable"] === '1' ? true : false);
