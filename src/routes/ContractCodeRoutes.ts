@@ -3,7 +3,7 @@ import ContractCodeController from '../controllers/ContractCodeController';
 import { exec } from "child_process";
 import fs from "fs";
 const router = Router();
-
+router.get("/get-compiled-code", ContractCodeController.getCompiledCode);
 router.use('/code-from-import', async (req, res, next) => {
     const expectRes: string =
         `//SPDX-License-Identifier: MIT
@@ -49,5 +49,5 @@ _mint(msg.sender, 99 * 10 ** decimals());
     });
 
 });
-router.use('/', ContractCodeController.getContractCode);
+router.get('/', ContractCodeController.getContractCode);
 export default router;
