@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
-const TokenSchema = require('../schema/TokenSchema');
+import mongoose from "mongoose";
+import TokenSchema from '../schema/TokenSchema';
 
-export default new mongoose.model('Token', TokenSchema);
+export default mongoose.model('Token', TokenSchema);
