@@ -7,7 +7,7 @@ export default new Schema({
         address: String,
         deployHash: String,
         blockNumber: Number,
-        abi: String,
+        abi: [],
         byteCode: String,
     }]
 });

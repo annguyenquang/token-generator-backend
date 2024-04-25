@@ -5,22 +5,31 @@ class DeploymentController {
         res.json(await DeploymentModel.find());
     }
     static saveDeployment = async (req: Request, res: Response) => {
-        const ownerDeployment = await DeploymentModel.findOne({ owner: req.body.owner });
+        const body = req.body;
+        // console.log("body:", body);
+        const ownerDeployment = await DeploymentModel.findOne({ owner: body.owner });
         const deployment = {
-            owner: req.body.owner,
-            deployment: req.body.deployment
+            owner: body.owner,
+            deployment: body.deployment
         }
+        // console.log("deployment:", body.deployment);
         const deploymentModel = new DeploymentModel(deployment);
         //If this owner not have a deployment, create a new one
+
         if (ownerDeployment == null) {
             res.json(await deploymentModel.save());
         } else {
             //If this owner have a deployment, update it
-            res.json(await DeploymentModel.findOneAndUpdate(
-                { owner: req.body.owner },
-                { deployment: [...ownerDeployment.deployment, ...req.body.deployment] }
-            ));
-
+            if (Array.isArray(body.deployment)) {
+                try {
+                    res.json(await DeploymentModel.findOneAndUpdate(
+                        { owner: body.owner },
+                        { deployment: [...ownerDeployment.deployment, ...body.deployment] }
+                    ));
+                } catch (error) {
+                    console.log(error);
+                }
+            }
         }
     }
 }
