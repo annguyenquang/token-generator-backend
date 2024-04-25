@@ -23,12 +23,14 @@ class ContractCodeController {
         const contract = this.optionToContract(req.query);
         const basePath = './contracts';
 
-        await fs.writeFileSync(`${basePath}/${contractName}.sol`, contract.toString());
+        fs.writeFileSync(`${basePath}/${contractName}.sol`, contract.toString());
 
         while (!fs.existsSync(`${basePath}/${contractName}.sol`)) {
-            console.log('waiting for file to be created1');
+            setTimeout(() => {
+                console.log('waiting for file to be created1');
+            }, 2000);
         }
-        await exec(`npx hardhat compile`, (error, stdout, stderr) => {
+        exec(`npx hardhat compile`, (error, stdout, stderr) => {
             if (error) {
                 console.error(`exec error: ${error}`);
                 return res.status(499).send('error occurred during contract deployment');
@@ -36,10 +38,15 @@ class ContractCodeController {
             console.log(`stdout: ${stdout}`);
             console.error(`stderr: ${stderr}`);
         });
+
         while (!fs.existsSync(`artifacts/contracts/${contractName}.sol/${contractName}.json`)) {
-            console.log('waiting for file to be created2' + contractName);
+            setTimeout(() => {
+            }, 2000);
+            console.log('waiting for file to be created ' + contractName);
         }
-        await fs.readFile(`artifacts/contracts/${contractName}.sol/${contractName}.json`, 'utf8', (err, data) => {
+
+
+        fs.readFile(`artifacts/contracts/${contractName}.sol/${contractName}.json`, 'utf8', (err, data) => {
             if (err) {
                 console.error(`exec error: ${err}`);
                 return res.status(500).send('Error occurred during contract deployment');
