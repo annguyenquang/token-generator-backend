@@ -39,27 +39,31 @@ class ContractCodeController {
             console.error(`stderr: ${stderr}`);
         });
 
-        while (!fs.existsSync(`artifacts/contracts/${contractName}.sol/${contractName}.json`)) {
-            setTimeout(() => {
-            }, 2000);
-            console.log('waiting for file to be created ' + contractName);
-        }
+        let interval = setInterval(() => {
+            if (fs.existsSync(`artifacts/contracts/${contractName}.sol/${contractName}.json`)) {
+                console.log('File has been created ' + contractName);
+                fs.readFile(`artifacts/contracts/${contractName}.sol/${contractName}.json`, 'utf8', (err, data) => {
+                    if (err) {
+                        console.error(`exec error: ${err}`);
+                        return res.status(500).send('Error occurred during contract deployment');
+                    }
+                    res.json(JSON.parse(data));
+
+                    if (fs.existsSync(`${basePath}/${contractName}.sol`)) {
+                        fs.rmSync(`${basePath}/${contractName}.sol`, { force: true, recursive: true });
+                    }
+                    if (fs.existsSync(`artifacts/contracts/${contractName}.sol`)) {
+                        fs.rmSync(`artifacts/contracts/${contractName}.sol`, { force: true, recursive: true });
+                    }
+                });
+                clearInterval(interval);
+            } else {
+                console.log('waiting for file to be created ' + contractName);
+            }
+        }, 2000);
 
 
-        fs.readFile(`artifacts/contracts/${contractName}.sol/${contractName}.json`, 'utf8', (err, data) => {
-            if (err) {
-                console.error(`exec error: ${err}`);
-                return res.status(500).send('Error occurred during contract deployment');
-            }
-            res.json(JSON.parse(data));
 
-            if (fs.existsSync(`${basePath}/${contractName}.sol`)) {
-                fs.rmSync(`${basePath}/${contractName}.sol`, { force: true, recursive: true });
-            }
-            if (fs.existsSync(`artifacts/contracts/${contractName}.sol`)) {
-                fs.rmSync(`artifacts/contracts/${contractName}.sol`, { force: true, recursive: true });
-            }
-        });
 
     }
 

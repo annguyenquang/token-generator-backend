@@ -9,11 +9,11 @@ class MongoRepository implements IDeploymentRepository {
     return DeploymentModel.find();
   }
 
-  save: (owner: string, deployment: any) => any = async (o: string, d: any) => {
-    const ownerDeployment = await DeploymentModel.findOne({ owner: o });
+  save: (owner: string, deployment: any, network: any) => any = async (o: string, d: any, n: any) => {
     const deployment = {
       owner: o,
-      deployment: d
+      deployment: d,
+      network: n
     }
     const deploymentModel = new DeploymentModel(deployment);
     return (await deploymentModel.save());

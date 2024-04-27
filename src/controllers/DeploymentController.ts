@@ -21,17 +21,14 @@ class DeploymentController {
     saveDeployment = async (req: Request, res: Response) => {
         const body = req.body;
         // console.log("body:", body);
-        const ownerDeployment = await DeploymentModel.findOne({ owner: body.owner });
+        const ownerDeployment = await this.repository.findByAddress(body.owner);
         const deployment = {
             owner: body.owner,
-            deployment: body.deployment
-        }
-        // console.log("deployment:", body.deployment);
-        const deploymentModel = new DeploymentModel(deployment);
-        //If this owner not have a deployment, create a new one
-
+            deployment: body.deployment,
+            network: body.network
+        };
         if (ownerDeployment == null) {
-            res.json(await deploymentModel.save());
+            res.json(await this.repository.save(deployment.owner, deployment.deployment, deployment.network));
         } else {
             //If this owner have a deployment, update it
             if (Array.isArray(body.deployment)) {
