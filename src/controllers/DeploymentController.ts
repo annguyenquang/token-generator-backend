@@ -1,10 +1,24 @@
 import { Request, Response } from 'express';
-import DeploymentModel from '../models/DeploymentModel'
+import DeploymentModel from '../models/DeploymentModel';
+import IDeploymentRepository from '../repostiories/DeploymentRepository/IDeploymentRepository';
+
 class DeploymentController {
-    static getAllDeployment = async (req: Request, res: Response) => {
-        res.json(await DeploymentModel.find());
+    repository: IDeploymentRepository;
+
+    constructor(repository: IDeploymentRepository) {
+        this.repository = repository;
     }
-    static saveDeployment = async (req: Request, res: Response) => {
+
+    getAllDeployment = async (req: Request, res: Response) => {
+        res.json(await this.repository.findAll());
+        // res.json(await DeploymentModel.find());
+    }
+    getDeploymentByAddress = async (req: Request, res: Response) => {
+        const address = req.params["address"];
+        const deployment = await this.repository.findByAddress(address);
+        res.json(deployment);
+    }
+    saveDeployment = async (req: Request, res: Response) => {
         const body = req.body;
         // console.log("body:", body);
         const ownerDeployment = await DeploymentModel.findOne({ owner: body.owner });
@@ -22,9 +36,9 @@ class DeploymentController {
             //If this owner have a deployment, update it
             if (Array.isArray(body.deployment)) {
                 try {
-                    res.json(await DeploymentModel.findOneAndUpdate(
-                        { owner: body.owner },
-                        { deployment: [...ownerDeployment.deployment, ...body.deployment] }
+                    res.json(await this.repository.findOneAndUpdate(
+                        body.owner,
+                        [...ownerDeployment.deployment, ...body.deployment]
                     ));
                 } catch (error) {
                     console.log(error);
