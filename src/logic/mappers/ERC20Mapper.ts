@@ -23,6 +23,7 @@ class ERC20Mapper implements ContractMapper {
     private contract: Contract_Dev;
     _name: String = "";
     _symbol: String = "";
+    _premint: number = 0;
     _isMintable: boolean = false;
     _isBurnable: boolean = false;
     _isPausable: boolean = false;
@@ -84,6 +85,7 @@ class ERC20Mapper implements ContractMapper {
     }
 
     setLicense = (license: String) => {
+        this._tokenInformation.license = license;
         this.contract.license = license;
     }
 
@@ -120,6 +122,7 @@ class ERC20Mapper implements ContractMapper {
                 this.contract.contractBody._contractConstructor._functionBody += `\n${permitCommand}`;
             }
         }
+        this._premint = amount;
     }
     setPermit = (isPermit: boolean) => {
         if (this._isPermint && isPermit) {
@@ -138,23 +141,24 @@ class ERC20Mapper implements ContractMapper {
                 }
             }
         }
+        this._isPermint = isPermit;
     }
+
     setIsBurnable = (isBurnable: boolean) => {
         const importList = this.contract.importList;
         const burnableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol';
         if (this._isBurnable && isBurnable) {
+            console.log("BURNABLE IS ALREADY ENABLED");
+            return;
+        } else {
             if (isBurnable) {
                 if (!importList.includes(burnableImport)) {
                     importList.push(burnableImport);
+                    console.log("PUSHED BURNABLE IMPORT");
                 }
-            } else {
-                const index = importList.indexOf(burnableImport);
-                if (index > -1) {
-                    importList.splice(index, 1);
-                }
-            }
-            this._isBurnable = isBurnable;
+            } else { const index = importList.indexOf(burnableImport); if (index > -1) { importList.splice(index, 1); } } console.log("PERMIT IS ALREADY ENABLED");
         }
+        this._isBurnable = isBurnable;
     }
 
     setIsPausable = (isPausable: boolean) => {
@@ -165,13 +169,19 @@ class ERC20Mapper implements ContractMapper {
         } else {
             if (isPausable) {
                 //ADD IMPORTS
-
-                this.contract.importList.push(ERC20PausableImport);
-                this.contract.importList.push(OwnableImport);
+                if (!this.contract.importList.includes(ERC20PausableImport)) {
+                    this.contract.importList.push(ERC20PausableImport);
+                }
+                if (!this.contract.importList.includes(OwnableImport)) {
+                    this.contract.importList.push(OwnableImport);
+                }
                 // ADD CONTRACT INHERITANCE
-
-                this.contract.inheritances.push('ERC20Pausable');
-                this.contract.inheritances.push('Ownable');
+                if (!this.contract.inheritances.includes('ERC20Pausable')) {
+                    this.contract.inheritances.push('ERC20Pausable');
+                }
+                if (!this.contract.inheritances.includes('Ownable')) {
+                    this.contract.inheritances.push('Ownable');
+                }
                 // ADD CONSTRUCTOR CONTRACT MODIFIER CALL
                 const constructorModifierCall = this.contract.contractBody._contractConstructor._modifierCallList;
                 if (!constructorModifierCall.find((item) => item._name === 'Ownable')) {
@@ -243,6 +253,7 @@ class ERC20Mapper implements ContractMapper {
                 }
             }
         }
+        this._isPausable = isPausable;
     }
     setIsFlashMintable = (isFlashMint: boolean) => {
         const ERC20FlashMintImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol';
@@ -307,6 +318,7 @@ class ERC20Mapper implements ContractMapper {
                     .setFunctionBody('_mint(to, amount);')
                     .build();
                 functionList.push(mintFunction);
+                // this.contract.contractBody._functionList = functionList;
             } else {
                 // REMOVE INHERITANCE IF EXIST
                 if (inheritances.includes('Ownable')) {
@@ -322,9 +334,9 @@ class ERC20Mapper implements ContractMapper {
                 }
             }
         }
+        this._isMintable = isMintable;
     }
 
-    // 
 }
 
 export default ERC20Mapper;

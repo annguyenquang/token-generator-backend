@@ -4,18 +4,12 @@ import { Request, Response } from 'express';
 import ERC20Mapper from '../logic/mappers/ERC20Mapper';
 import { Contract_Dev } from '../logic/classes/Contract_Dev';
 
-type TokenOptions = {
-    name: string,
-    symbol: string,
-    premint: number,
-    ispermit: any,
-    license: string,
-    ispausable: any,
-    ismintable: any,
-    isburnable: any,
-    isflashmintable: any
+type OptionPair = {
+    key: string,
+    value: string
 
 }
+
 class ContractCodeController {
     static getCompiledCode = async (req: Request, res: Response) => {
         const contractName = req.query.name;
@@ -77,21 +71,64 @@ class ContractCodeController {
 
     static optionToContract: (options: any) => Contract_Dev = (options: any) => {
         const contractmapper: ERC20Mapper = new ERC20Mapper();
-        console.log("query:",);
-        console.log("SYMBOL:", options["symbol"]);
-        console.log("ISBURNABLE:", options["isburnable"]);
-        console.log("ISPAUSABLE:", options["ispausable"]);
+        //Lưu ý: Cần phải thực thi các giá trị false trước, sau đó mới thực thi các giá trị true
+        // bởi vì nếu thực thi các giá trị false sau thì có thể ghi đè lên các giá trị true
+        const executeFirst: OptionPair[] = []; // Những giá trị false sẽ được thực thi trước 
+        const executeSecond: OptionPair[] = []; // Những giá trị true sẽ được thực thi sau
+        // Chuyển đổi object thành mảng các cặp key-value
+        const arrayOfOptions: OptionPair[] = Object.keys(options).map((key) => {
+            const optionPair: OptionPair = { key: key, value: options[key] };
+            return optionPair;
+        });
+        // Phân loại các giá trị vào executeFirst và executeSecond
+        arrayOfOptions.forEach(option => {
+            if (!(option.value === "1")) {
+                executeFirst.push(option);
+            } else {
+                executeSecond.push(option);
+            }
+        });
+        // Hàm thực thi các option
+        const execute = (option: OptionPair) => {
+            switch (option.key) {
+                case "ispermit": {
+                    contractmapper.setPermit(options['ispermit'] === '1' ? true : false);
+                    break;
+                }
+                case "ispausable": {
+                    contractmapper.setIsPausable(options["ispausable"] === '1' ? true : false)
+                    break;
+                }
+                case "isburnable": {
+                    contractmapper.setIsBurnable(options["isburnable"] === '1' ? true : false);
+                    break;
+                }
+                case "ismintable": {
+                    contractmapper.setIsMintable(options["ismintable"] === '1' ? true : false);
+                    break;
+                }
+                case "isflashmintable": {
+                    contractmapper.setIsFlashMintable(options["isflashmintable"] === '1' ? true : false);
+                    break;
+                }
+            }
+        }
+        // Thực thi các option không phụ thuộc vào thứ tự trước
         contractmapper.setName(options["name"] ?? '');
         contractmapper.setSymbol(options["symbol"] ?? '');
         contractmapper.setPremint(options["premint"] ?? 0);
-        contractmapper.setPermit(options['ispermit'] === '1' ? true : false);
         options['license'] && contractmapper.setLicense(options['license']);
-        contractmapper.setIsPausable(options["ispausable"] === '1' ? true : false);
-        contractmapper.setIsBurnable(options["isburnable"] === '1' ? true : false);
-        contractmapper.setIsMintable(options["ismintable"] === '1' ? true : false);
-        contractmapper.setIsFlashMintable(options["isflashmintable"] === '1' ? true : false);
-        console.log("CONTRACT MAPPER:", contractmapper);
+        // Thực thi các option
+        executeFirst.forEach(option => {
+            execute(option);
+        });
+        executeSecond.forEach(option => {
+            execute(option);
+        });
+        console.log("EXECUTE FIRST:", executeFirst);
+        console.log("EXECUTE SECOND:", executeSecond);
         return contractmapper.getContract();
     }
+
 }
 export default ContractCodeController;
