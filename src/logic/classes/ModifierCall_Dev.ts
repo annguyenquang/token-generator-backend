@@ -21,7 +21,7 @@ class ModifierCall_Dev implements ContractElement {
     static listToString = (modifierCallList: ModifierCall_Dev[]): String => {
         let res = '';
         modifierCallList.forEach((m) => {
-            res += `${m.toString()}, `;
+            res += `${m.toString()} `;
         });
         while (res.charAt(res.length - 1) === ' ' || res.charAt(res.length - 1) === ',') {
             res = res.slice(0, res.length - 1);
