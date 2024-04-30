@@ -3,6 +3,7 @@ import { exec } from 'child_process';
 import { Request, Response } from 'express';
 import ERC20Mapper from '../logic/mappers/ERC20Mapper';
 import { Contract_Dev } from '../logic/classes/Contract_Dev';
+import Vote_Dev from '../logic/enums/Vote_Dev';
 const solc = require('solc');
 
 type OptionPair = {
@@ -87,7 +88,7 @@ class ContractCodeController {
         });
 
         arrayOfOptions.forEach(option => {
-            if (!(option.value === "1")) {
+            if (!(option.value === "1" || option.value === "2")) {
                 executeFirst.push(option);
             } else {
                 executeSecond.push(option);
@@ -97,24 +98,51 @@ class ContractCodeController {
         const execute = (option: OptionPair) => {
             switch (option.key) {
                 case "ispermit": {
-                    contractmapper.setIsPermit(options['ispermit'] === '1' ? true : false);
+                    // contractmapper.setIsPermit(options['ispermit'] === '1' ? true : false);
+                    contractmapper.setIsPermit(option.value === '1' ? true : false);
                     break;
                 }
                 case "ispausable": {
-                    contractmapper.setIsPausable(options["ispausable"] === '1' ? true : false)
+                    // contractmapper.setIsPausable(options["ispausable"] === '1' ? true : false)
+                    contractmapper.setIsPausable(option.value === '1' ? true : false)
                     break;
                 }
                 case "isburnable": {
-                    contractmapper.setIsBurnable(options["isburnable"] === '1' ? true : false);
+                    // contractmapper.setIsBurnable(options["isburnable"] === '1' ? true : false);
+                    contractmapper.setIsBurnable(option.value === '1' ? true : false);
                     break;
                 }
                 case "ismintable": {
-                    contractmapper.setIsMintable(options["ismintable"] === '1' ? true : false);
+                    // contractmapper.setIsMintable(options["ismintable"] === '1' ? true : false);
+                    contractmapper.setIsMintable(option.value === '1' ? true : false);
                     break;
                 }
                 case "isflashmintable": {
-                    contractmapper.setIsFlashMintable(options["isflashmintable"] === '1' ? true : false);
+                    // contractmapper.setIsFlashMintable(options["isflashmintable"] === '1' ? true : false);
+                    contractmapper.setIsFlashMintable(options.value === '1' ? true : false);
                     break;
+                }
+                case "votes": {
+                    let vote: Vote_Dev;
+                    switch (option.value) {
+                        case "0": {
+                            vote = Vote_Dev.NONE;
+                            break;
+                        }
+                        case "1": {
+                            vote = Vote_Dev.BLOCK_NUMBER;
+                            break;
+                        }
+                        case "2": {
+                            vote = Vote_Dev.TIMESTAMP;
+                            break
+                        }
+                        default: {
+                            vote = Vote_Dev.NONE;
+                        }
+                    }
+
+                    contractmapper.setVotes(vote);
                 }
             }
         }
@@ -122,6 +150,7 @@ class ContractCodeController {
         contractmapper.setName(options["name"] ?? '');
         contractmapper.setSymbol(options["symbol"] ?? '');
         contractmapper.setPremint(options["premint"] ?? 0);
+
         options['license'] && contractmapper.setLicense(options['license']);
 
         executeFirst.forEach(option => {

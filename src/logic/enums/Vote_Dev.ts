@@ -1,5 +1,7 @@
 enum Vote_Dev {
-    NONE, BLOCK_NUMBER, TIMESTAMP
+    NONE = 0,
+    BLOCK_NUMBER = 1,
+    TIMESTAMP = 2
 }
 
 export default Vote_Dev;

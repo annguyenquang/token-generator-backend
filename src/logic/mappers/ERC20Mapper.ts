@@ -20,7 +20,9 @@ type TokenInformation = {
 const INIT_IMPORTS = ['@openzeppelin/contracts/token/ERC20/ERC20.sol'];
 const TOKEN_TYPE = "ERC20";
 class ERC20Mapper implements ContractMapper {
+
     private contract: Contract_Dev;
+
     _name: String = "";
     _symbol: String = "";
     _premint: number = 0;
@@ -124,6 +126,7 @@ class ERC20Mapper implements ContractMapper {
         }
         this._premint = amount;
     }
+
     setIsPermit = (isPermit: boolean) => {
         if (this._isPermint && isPermit) {
             return;
@@ -224,18 +227,26 @@ class ERC20Mapper implements ContractMapper {
                     .setFunctionBody('_unpause();').build();
                 this.contract.contractBody._functionList.push(unpauseFunction);
                 // add _update()
-                const updateFunction: Function_Dev = new FunctionBuilder()
-                    .setName('_update')
-                    .setVisibility(Visibility_Dev.INTERNAL)
-                    .setParameterList([
-                        new Parameter('address', 'from', DataLocation_Dev.NONE),
-                        new Parameter('address', 'to', DataLocation_Dev.NONE),
-                        new Parameter('uint256', 'value', DataLocation_Dev.NONE)
-                    ])
-                    .setOverrideSpecifier(new OverriderSpecifier_Dev([TOKEN_TYPE, `${TOKEN_TYPE}Pausable`]))
-                    .setFunctionBody('super._update(from, to, value);')
-                    .build();
-                this.contract.contractBody._functionList.push(updateFunction);
+                {
+                    const fName = "_update";
+                    const idx = this.contract.contractBody._functionList.findIndex((item) => item._name === fName);
+                    if (idx === -1) {
+                        const updateFunction: Function_Dev = new FunctionBuilder()
+                            .setName(fName)
+                            .setVisibility(Visibility_Dev.INTERNAL)
+                            .setParameterList([
+                                new Parameter('address', 'from', DataLocation_Dev.NONE),
+                                new Parameter('address', 'to', DataLocation_Dev.NONE),
+                                new Parameter('uint256', 'value', DataLocation_Dev.NONE)
+                            ])
+                            .setOverrideSpecifier(new OverriderSpecifier_Dev([TOKEN_TYPE, `${TOKEN_TYPE}Pausable`]))
+                            .setFunctionBody('super._update(from, to, value);')
+                            .build();
+                        this.contract.contractBody._functionList.push(updateFunction);
+                    } else {
+                        this.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push("ERCPausable");
+                    }
+                }
             } else {
                 //REMOVE IMPORTS
                 const indexERC20PausableImp = this.contract.importList.indexOf(ERC20PausableImport);
@@ -276,6 +287,7 @@ class ERC20Mapper implements ContractMapper {
         }
         this._isPausable = isPausable;
     }
+
     setIsFlashMintable = (isFlashMint: boolean) => {
         const ERC20FlashMintImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol';
         const ERC20FlashMintable = 'ERC20FlashMint';
@@ -358,6 +370,67 @@ class ERC20Mapper implements ContractMapper {
         this._isMintable = isMintable;
     }
 
+    setAccessControl(accessControl: AccessControl_Dev) {
+
+    }
+
+    setVotes(Vote: Vote_Dev) {
+        if (Vote === Vote_Dev.NONE) {
+            return;
+        }
+
+        this.setIsPermit(true);
+        //SET IMPORT    
+        const voteImport = "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+        if (!this.contract.importList.includes(voteImport)) {
+            this.contract.importList.push(voteImport);
+        }
+        //SET INHERITANCE 
+        const voteInheritance = "ERC20Votes";
+        if (!this.contract.inheritances.includes(voteInheritance)) {
+            this.contract.inheritances.push(voteInheritance);
+        }
+        //SET FUNCTION
+        //1. function _updateFunction
+        {
+            const fName = "_update"
+            const idx: number = this.contract.contractBody._functionList.findIndex((item) => (item._name === fName));
+            if (idx === -1) {
+                const updateFunction = new FunctionBuilder()
+                    .setName(fName)
+                    .setParameterList([
+                        new ParameterBuilder().setType("address").setName("from").setDataLocation(DataLocation_Dev.NONE).build(),
+                        new ParameterBuilder().setType("address").setName("to").setDataLocation(DataLocation_Dev.NONE).build(),
+                        new ParameterBuilder().setType("uint256").setName("value").setDataLocation(DataLocation_Dev.NONE).build(),
+                    ])
+                    .setVisibility(Visibility_Dev.INTERNAL)
+                    .setOverrideSpecifier(new OverriderSpecifier_Dev(["ERC20", "ERC20Votes"]))
+                    .setFunctionBody(`super._update(from, to, value);`)
+                    .build();
+                this.contract.contractBody._functionList.push(updateFunction);
+            } else {
+                this.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push("ERC20Votes");
+            }
+        }
+        //2. function nonces 
+        {
+            const fName = "nonces";
+            const idx: number = this.contract.contractBody._functionList.findIndex((item) => (item._name === fName))
+            if (idx === -1) {
+                const noncesFunction = new FunctionBuilder()
+                    .setName(fName)
+                    .setParameterList([new ParameterBuilder().setType("address").setName("owner").build()])
+                    .setVisibility(Visibility_Dev.PUBLIC)
+                    .setOverrideSpecifier(new OverriderSpecifier_Dev(["ERC20Permit", "Nonces"]))
+                    .setReturns([new ParameterBuilder().setType("uint256").setDataLocation(DataLocation_Dev.NONE)])
+                    .setFunctionBody(`return super.${fName}(owner);`)
+                    .build();
+                this.contract.contractBody._functionList.push(noncesFunction);
+            } else {
+                // NOTHING TO HANDLE, UPDATE LATER =))
+            }
+        }
+    }
 }
 
 export default ERC20Mapper;
