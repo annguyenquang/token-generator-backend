@@ -124,13 +124,19 @@ class ERC20Mapper implements ContractMapper {
         }
         this._premint = amount;
     }
-    setPermit = (isPermit: boolean) => {
+    setIsPermit = (isPermit: boolean) => {
         if (this._isPermint && isPermit) {
             return;
         } else {
+            const permitInheritance = 'ERC20Permit';
             const permitImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol';
             const importList = this.contract.importList;
             if (isPermit) {
+                // ADD INHERITANCE
+                if (!this.contract.inheritances.includes(permitInheritance)) {
+                    this.contract.inheritances.push(permitInheritance);
+                }
+                // ADD IMPORT
                 if (!importList.includes(permitImport)) {
                     importList.push(permitImport);
                 }
