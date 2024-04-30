@@ -97,7 +97,7 @@ class ContractCodeController {
         const execute = (option: OptionPair) => {
             switch (option.key) {
                 case "ispermit": {
-                    contractmapper.setPermit(options['ispermit'] === '1' ? true : false);
+                    contractmapper.setIsPermit(options['ispermit'] === '1' ? true : false);
                     break;
                 }
                 case "ispausable": {
