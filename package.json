@@ -20,7 +20,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongoose": "^8.2.4",
-    "nodejs": "^0.0.0"
+    "nodejs": "^0.0.0",
+    "solc": "^0.8.20"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
