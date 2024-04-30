@@ -24,6 +24,7 @@ class ContractCodeController {
                 console.log('waiting for file to be created1');
             }, 2000);
         }
+
         exec(`npx hardhat compile`, (error, stdout, stderr) => {
             if (error) {
                 console.error(`exec error: ${error}`);
