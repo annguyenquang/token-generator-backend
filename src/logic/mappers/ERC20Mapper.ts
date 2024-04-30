@@ -147,11 +147,17 @@ class ERC20Mapper implements ContractMapper {
     setIsBurnable = (isBurnable: boolean) => {
         const importList = this.contract.importList;
         const burnableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol';
+        const burnableInheritance = "ERC20Burnable";
         if (this._isBurnable && isBurnable) {
             console.log("BURNABLE IS ALREADY ENABLED");
             return;
         } else {
             if (isBurnable) {
+                // ADD INHERITANCE
+                if (!this.contract.inheritances.includes(burnableInheritance)) {
+                    this.contract.inheritances.push(burnableInheritance);
+                }
+                // ADD IMPORT
                 if (!importList.includes(burnableImport)) {
                     importList.push(burnableImport);
                     console.log("PUSHED BURNABLE IMPORT");
