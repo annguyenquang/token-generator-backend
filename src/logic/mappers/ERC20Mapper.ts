@@ -10,7 +10,7 @@ import Visibility_Dev from "../enums/Visibility_Dev";
 import Modifier_Dev from "../classes/Modifier_Dev";
 import OverriderSpecifier_Dev from "../classes/OverriderSpecifier_Dev";
 import DataLocation_Dev from "../enums/DataLocation_Dev";
-import { Parameter } from "../classes/Parameter";
+import { Parameter, ParameterBuilder } from "../classes/Parameter";
 import ContractMapper from "../interfaces/ContractMapper";
 
 type TokenInformation = {
@@ -164,10 +164,19 @@ class ERC20Mapper implements ContractMapper {
     setIsPausable = (isPausable: boolean) => {
         const ERC20PausableImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol';
         const OwnableImport = '@openzeppelin/contracts/access/Ownable.sol';
+        const initialOwnerParam = new ParameterBuilder()
+            .setName('initialOwner')
+            .setType('address')
+            .setDataLocation(DataLocation_Dev.NONE)
+            .build();
         if (this._isPausable && isPausable) {
             return;
         } else {
             if (isPausable) {
+                //ADD CONSTRUCTOR PARAM
+                if (!this.contract.contractBody._contractConstructor._parameterList.find((p) => p._name === 'initialOwner')) {
+                    this.contract.contractBody._contractConstructor._parameterList.push(initialOwnerParam);
+                }
                 //ADD IMPORTS
                 if (!this.contract.importList.includes(ERC20PausableImport)) {
                     this.contract.importList.push(ERC20PausableImport);
