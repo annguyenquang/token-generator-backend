@@ -12,6 +12,7 @@ import OverriderSpecifier_Dev from "../classes/OverriderSpecifier_Dev";
 import DataLocation_Dev from "../enums/DataLocation_Dev";
 import { Parameter, ParameterBuilder } from "../classes/Parameter";
 import ContractMapper from "../interfaces/ContractMapper";
+import StateMutability from "../enums/StateMutability_Dev";
 
 type TokenInformation = {
     securityContact?: String;
@@ -396,7 +397,7 @@ class ERC20Mapper implements ContractMapper {
             const fName = "_update"
             const idx: number = this.contract.contractBody._functionList.findIndex((item) => (item._name === fName));
             if (idx === -1) {
-                const updateFunction = new FunctionBuilder()
+                const updateFunction: Function_Dev = new FunctionBuilder()
                     .setName(fName)
                     .setParameterList([
                         new ParameterBuilder().setType("address").setName("from").setDataLocation(DataLocation_Dev.NONE).build(),
@@ -417,17 +418,58 @@ class ERC20Mapper implements ContractMapper {
             const fName = "nonces";
             const idx: number = this.contract.contractBody._functionList.findIndex((item) => (item._name === fName))
             if (idx === -1) {
-                const noncesFunction = new FunctionBuilder()
+                const noncesFunction: Function_Dev = new FunctionBuilder()
                     .setName(fName)
                     .setParameterList([new ParameterBuilder().setType("address").setName("owner").build()])
                     .setVisibility(Visibility_Dev.PUBLIC)
+                    .setStateMutability(StateMutability.VIEW)
                     .setOverrideSpecifier(new OverriderSpecifier_Dev(["ERC20Permit", "Nonces"]))
-                    .setReturns([new ParameterBuilder().setType("uint256").setDataLocation(DataLocation_Dev.NONE)])
+                    .setReturns([new ParameterBuilder().setType("uint256").setDataLocation(DataLocation_Dev.NONE).build()])
                     .setFunctionBody(`return super.${fName}(owner);`)
                     .build();
                 this.contract.contractBody._functionList.push(noncesFunction);
             } else {
                 // NOTHING TO HANDLE, UPDATE LATER =))
+            }
+        }
+        // 3. If VOTE.TIMESTAMP add clock() and CLOCK_MODE() functions
+        if (Vote === Vote_Dev.TIMESTAMP) {
+            //3.1 add function clock()
+            {
+                const fName: String = "clock";
+                const idx: number = this.contract.contractBody._functionList.findIndex((f) => (f._name === fName));
+                if (idx === -1) {
+                    const clockFunction: Function_Dev = new FunctionBuilder()
+                        .setName(fName)
+                        .setVisibility(Visibility_Dev.PUBLIC)
+                        .setStateMutability(StateMutability.VIEW)
+                        .setOverrideSpecifier(new OverriderSpecifier_Dev())
+                        .setReturns([new ParameterBuilder().setType("uint256").build()])
+                        .setFunctionBody(`return super.${fName}(owner);`)
+                        .build();
+                    this.contract.contractBody._functionList.push(clockFunction);
+                } else {
+                    // NOTHING TO HANDLE, UPDATE LATER =))
+                }
+
+            }
+            //3.2 add function CLOCK_MODE()
+            {
+                const fName: String = "CLOCK_MODE";
+                const idx: number = this.contract.contractBody._functionList.findIndex((f) => (f._name === fName));
+                if (idx === -1) {
+                    const clockModeFunction: Function_Dev = new FunctionBuilder()
+                        .setName(fName)
+                        .setVisibility(Visibility_Dev.PUBLIC)
+                        .setStateMutability(StateMutability.PURE)
+                        .setOverrideSpecifier(new OverriderSpecifier_Dev([]))
+                        .setReturns([new ParameterBuilder().setType("string").setDataLocation(DataLocation_Dev.MEMORY)])
+                        .setFunctionBody("return \"mode=timestamp\"")
+                        .build();
+                    this.contract.contractBody._functionList.push(clockModeFunction);
+                } else {
+                    // NOTHING TO HANDLE, UPDATE LATER =))
+                }
             }
         }
     }
