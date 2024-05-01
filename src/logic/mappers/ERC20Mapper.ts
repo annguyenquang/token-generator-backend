@@ -218,14 +218,14 @@ class ERC20Mapper implements ContractMapper {
                     .setName('pause')
                     .setVisibility(Visibility_Dev.PUBLIC)
                     .setModifierList([new Modifier_Dev('onlyOwner', [])])
-                    .setFunctionBody('_pause();').build();
+                    .setFunctionBody(['_pause();']).build();
                 this.contract.contractBody._functionList.push(pauseFunction);
                 // add unpause()
                 const unpauseFunction: Function_Dev = new FunctionBuilder()
                     .setName('unpause')
                     .setVisibility(Visibility_Dev.PUBLIC)
                     .setModifierList([new Modifier_Dev('onlyOwner', [])])
-                    .setFunctionBody('_unpause();').build();
+                    .setFunctionBody(['_unpause();']).build();
                 this.contract.contractBody._functionList.push(unpauseFunction);
                 // add _update()
                 {
@@ -241,7 +241,7 @@ class ERC20Mapper implements ContractMapper {
                                 new Parameter('uint256', 'value', DataLocation_Dev.NONE)
                             ])
                             .setOverrideSpecifier(new OverriderSpecifier_Dev([TOKEN_TYPE, `${TOKEN_TYPE}Pausable`]))
-                            .setFunctionBody('super._update(from, to, value);')
+                            .setFunctionBody(['super._update(from, to, value);'])
                             .build();
                         this.contract.contractBody._functionList.push(updateFunction);
                     } else {
@@ -349,7 +349,7 @@ class ERC20Mapper implements ContractMapper {
                     .setParameterList([new Parameter('address', 'to', DataLocation_Dev.NONE), new Parameter('uint256', 'amount', DataLocation_Dev.NONE)])
                     .setVisibility(Visibility_Dev.PUBLIC)
                     .setModifierList([new Modifier_Dev('onlyOwner', [])])
-                    .setFunctionBody('_mint(to, amount);')
+                    .setFunctionBody(['_mint(to, amount);'])
                     .build();
                 functionList.push(mintFunction);
                 // this.contract.contractBody._functionList = functionList;
@@ -371,9 +371,6 @@ class ERC20Mapper implements ContractMapper {
         this._isMintable = isMintable;
     }
 
-    setAccessControl(accessControl: AccessControl_Dev) {
-
-    }
 
     setVotes(Vote: Vote_Dev) {
         if (Vote === Vote_Dev.NONE) {
@@ -394,7 +391,7 @@ class ERC20Mapper implements ContractMapper {
         //SET FUNCTION
         //1. function _updateFunction
         {
-            const fName = "_update"
+            const fName = "_update";
             const idx: number = this.contract.contractBody._functionList.findIndex((item) => (item._name === fName));
             if (idx === -1) {
                 const updateFunction: Function_Dev = new FunctionBuilder()
@@ -406,7 +403,7 @@ class ERC20Mapper implements ContractMapper {
                     ])
                     .setVisibility(Visibility_Dev.INTERNAL)
                     .setOverrideSpecifier(new OverriderSpecifier_Dev(["ERC20", "ERC20Votes"]))
-                    .setFunctionBody(`super._update(from, to, value);`)
+                    .setFunctionBody([`super._update(from, to, value);`])
                     .build();
                 this.contract.contractBody._functionList.push(updateFunction);
             } else {
@@ -425,7 +422,7 @@ class ERC20Mapper implements ContractMapper {
                     .setStateMutability(StateMutability.VIEW)
                     .setOverrideSpecifier(new OverriderSpecifier_Dev(["ERC20Permit", "Nonces"]))
                     .setReturns([new ParameterBuilder().setType("uint256").setDataLocation(DataLocation_Dev.NONE).build()])
-                    .setFunctionBody(`return super.${fName}(owner);`)
+                    .setFunctionBody([`return super.${fName}(owner);`])
                     .build();
                 this.contract.contractBody._functionList.push(noncesFunction);
             } else {
@@ -445,7 +442,7 @@ class ERC20Mapper implements ContractMapper {
                         .setStateMutability(StateMutability.VIEW)
                         .setOverrideSpecifier(new OverriderSpecifier_Dev())
                         .setReturns([new ParameterBuilder().setType("uint256").build()])
-                        .setFunctionBody(`return super.${fName}(owner);`)
+                        .setFunctionBody([`return super.${fName}(owner);`])
                         .build();
                     this.contract.contractBody._functionList.push(clockFunction);
                 } else {
@@ -464,12 +461,127 @@ class ERC20Mapper implements ContractMapper {
                         .setStateMutability(StateMutability.PURE)
                         .setOverrideSpecifier(new OverriderSpecifier_Dev([]))
                         .setReturns([new ParameterBuilder().setType("string").setDataLocation(DataLocation_Dev.MEMORY)])
-                        .setFunctionBody("return \"mode=timestamp\"")
+                        .setFunctionBody(["return \"mode=timestamp\""])
                         .build();
                     this.contract.contractBody._functionList.push(clockModeFunction);
                 } else {
                     // NOTHING TO HANDLE, UPDATE LATER =))
                 }
+            }
+        }
+    }
+
+    setAccessControl(ac: AccessControl_Dev) {
+        if (ac === AccessControl_Dev.NONE) {
+            return;
+        }
+        //HANDLE FUNCTIONS
+        const handleCaseOwnable = () => {
+            //ADD CONSTRUCTOR PARAM
+            const initialOwnerParamName = 'initialOwner';
+            const initialOwnerParam = new ParameterBuilder()
+                .setName(initialOwnerParamName)
+                .setType('address')
+                .setDataLocation(DataLocation_Dev.NONE)
+                .build();
+            if (!this.contract.contractBody._contractConstructor._parameterList.find((p) => p._name === initialOwnerParamName)) {
+                this.contract.contractBody._contractConstructor._parameterList.push(initialOwnerParam);
+            }
+            //ADD IMPORTS
+            const OwnableImport = '@openzeppelin/contracts/access/Ownable.sol';
+            if (!this.contract.importList.includes(OwnableImport)) {
+                this.contract.importList.push(OwnableImport);
+            }
+            //ADD INHERITANCE
+            const OwnableInheritance = 'Ownable';
+            if (!this.contract.inheritances.includes(OwnableInheritance)) {
+                this.contract.inheritances.push(OwnableInheritance);
+            }
+            //ADD CONSTRUCTOR MODIFIER CALL
+            const modifierName = "Ownable";
+            const modifierArgs = ["initialOwner"];
+            const constructorModifierCall = this.contract.contractBody._contractConstructor._modifierCallList;
+            if (!constructorModifierCall.find((item) => item._name === 'Ownable')) {
+                constructorModifierCall.push(new ModifierCall_Dev({ name: modifierName, args: modifierArgs }));
+            }
+        }
+
+        const handleCaseRoles = () => {
+            //ADD CONSTRUCTOR PARAM
+            const defaultAdminParamName = 'defaultAdmin';
+            const defaultAdminParam = new ParameterBuilder()
+                .setName(defaultAdminParamName)
+                .setType('address')
+                .setDataLocation(DataLocation_Dev.NONE)
+                .build();
+            if (!this.contract.contractBody._contractConstructor._parameterList.find((p) => p._name === defaultAdminParamName)) {
+                this.contract.contractBody._contractConstructor._parameterList.push(defaultAdminParam);
+            }
+            //ADD IMPORTS
+            const accessControlImport = '@openzeppelin/contracts/access/AccessControl.sol';
+            if (!this.contract.importList.includes(accessControlImport)) {
+                this.contract.importList.push(accessControlImport);
+            }
+            //ADD INHERITANCE
+            const accessControlInheritance = 'AccessControl';
+            if (!this.contract.inheritances.includes(accessControlInheritance)) {
+                this.contract.inheritances.push(accessControlInheritance);
+            }
+            //ADD FUNCTION BODY
+            const functionString = "_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);";
+            const idx = this.contract.contractBody._contractConstructor._functionBody.indexOf(functionString);
+            if (idx === -1) {
+                let constructorFunctionBody = this.contract.contractBody._contractConstructor._functionBody;
+                this.contract.contractBody._contractConstructor._functionBody =
+                    constructorFunctionBody.concat(functionString);
+            }
+        }
+        const handleCaseManaged = () => {
+            //ADD CONSTRUCTOR PARAM
+            const initialAuthorityParamName = 'initialOwner';
+            const initialAuthorityParam = new ParameterBuilder()
+                .setName(initialAuthorityParamName)
+                .setType('address')
+                .setDataLocation(DataLocation_Dev.NONE)
+                .build();
+            if (!this.contract.contractBody._contractConstructor._parameterList.find((p) => p._name === initialAuthorityParamName)) {
+                this.contract.contractBody._contractConstructor._parameterList.push(initialAuthorityParam);
+            }
+            //ADD IMPORTS
+            const AccessManagedImport = '@openzeppelin/contracts/access/manager/AccessManaged.sol';
+            if (!this.contract.importList.includes(AccessManagedImport)) {
+                this.contract.importList.push(AccessManagedImport);
+            }
+            //ADD INHERITANCE
+            const AccessManagerInheritance = 'AccessManaged';
+            if (!this.contract.inheritances.includes(AccessManagerInheritance)) {
+                this.contract.inheritances.push(AccessManagerInheritance);
+            }
+            //ADD CONSTRUCTOR MODIFIER CALL
+            const modifierName = "AccessManaged";
+            const modifierArgs = ["initialAuthority"];
+            const constructorModifierCall = this.contract.contractBody._contractConstructor._modifierCallList;
+            if (!constructorModifierCall.find((item) => item._name === modifierName)) {
+                constructorModifierCall.push(new ModifierCall_Dev({ name: modifierName, args: modifierArgs }));
+            }
+
+        }
+
+        switch (ac) {
+            case AccessControl_Dev.OWNABLE: {
+                handleCaseOwnable();
+                break;
+            }
+            case AccessControl_Dev.ROLES: {
+                handleCaseRoles();
+                break;
+            }
+            case AccessControl_Dev.MANAGED: {
+                handleCaseManaged();
+                break;
+            }
+            default: {
+                return;
             }
         }
     }

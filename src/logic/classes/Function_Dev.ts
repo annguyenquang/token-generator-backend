@@ -16,11 +16,11 @@ class Function_Dev implements ContractElement {
     _overrideSpecifier: OverriderSpecifier_Dev | undefined;
     _extraKeyWord: String[] = [];
     _returns: Parameter[] = [];
-    _functionBody: String;
+    _functionBody: String[];
 
     constructor(options: {
         name: String,
-        functionBody: String,
+        functionBody: String[],
         parameterList?: Parameter[],
         visibility?: Visibility_Dev,
         stateMutability?: StateMutability,
@@ -58,6 +58,10 @@ class Function_Dev implements ContractElement {
     }
 
     toString = () => {
+        let fnBodyString: String = '';
+        this._functionBody.forEach((item, idx) => {
+            fnBodyString = fnBodyString.concat(idx === 0 ? `${item}` : `\n${item}`);
+        })
         return (
             "function" +
             ` ${this._name}`
@@ -71,7 +75,7 @@ class Function_Dev implements ContractElement {
             + `${this._overrideSpecifier ? ` override(${this._overrideSpecifier.toString()})` : ""}`
             + `${this._returns.length !== 0 ? ` returns(${Parameter.listToString(this._returns)})` : ""}` +
             "{" +
-            `${this._functionBody.length !== 0 ? ('\n' + this._functionBody + '\n') : ''}`
+            `${this._functionBody.length !== 0 ? ('\n' + fnBodyString + '\n') : ''}`
             + "}"
 
         )
@@ -99,7 +103,7 @@ class FunctionBuilder {
     private _overrideSpecifier: OverriderSpecifier_Dev | undefined;
     private _extraKeyWord: String[] = [];
     private _returns: Parameter[] = [];
-    private _functionBody: String = '';
+    private _functionBody: String[] = [];
 
     setName(name: String): FunctionBuilder {
         this._name = name;
@@ -141,7 +145,7 @@ class FunctionBuilder {
         this._extraKeyWord = extraKeyWord;
         return this;
     }
-    setFunctionBody(functionBody: String): FunctionBuilder {
+    setFunctionBody(functionBody: String[]): FunctionBuilder {
         this._functionBody = functionBody;
         return this;
     }

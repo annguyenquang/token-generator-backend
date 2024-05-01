@@ -1,6 +1,7 @@
 enum AccessControl_Dev {
-    NONE = "",
-    OWNABLE = "Ownable",
-    MANAGED = "Managed"
+    NONE = 0,
+    OWNABLE = 1,
+    ROLES = 2,
+    MANAGED = 3
 }
 export default AccessControl_Dev;

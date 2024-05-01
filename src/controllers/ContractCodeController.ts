@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import ERC20Mapper from '../logic/mappers/ERC20Mapper';
 import { Contract_Dev } from '../logic/classes/Contract_Dev';
 import Vote_Dev from '../logic/enums/Vote_Dev';
+import AccessControl_Dev from '../logic/enums/AccessControl_Dev';
 const solc = require('solc');
 
 type OptionPair = {
@@ -88,7 +89,7 @@ class ContractCodeController {
         });
 
         arrayOfOptions.forEach(option => {
-            if (!(option.value === "1" || option.value === "2")) {
+            if (!(option.value === "1" || option.value === "2" || option.value === "3")) {
                 executeFirst.push(option);
             } else {
                 executeSecond.push(option);
@@ -122,6 +123,32 @@ class ContractCodeController {
                     contractmapper.setIsFlashMintable(options.value === '1' ? true : false);
                     break;
                 }
+                case "accesscontrol": {
+                    let ac: AccessControl_Dev;
+                    switch (option.value) {
+                        case "0": {
+                            ac = AccessControl_Dev.NONE;
+                            break;
+                        }
+                        case "1": {
+                            ac = AccessControl_Dev.OWNABLE;
+                            break;
+                        }
+                        case "2": {
+                            ac = AccessControl_Dev.ROLES;
+                            break;
+                        }
+                        case "3": {
+                            ac = AccessControl_Dev.MANAGED;
+                            break;
+                        }
+                        default: {
+                            ac = AccessControl_Dev.NONE;
+                        }
+                    }
+                    contractmapper.setAccessControl(ac);
+                    break;
+                }
                 case "votes": {
                     let vote: Vote_Dev;
                     switch (option.value) {
@@ -143,6 +170,7 @@ class ContractCodeController {
                     }
 
                     contractmapper.setVotes(vote);
+                    break;
                 }
             }
         }
