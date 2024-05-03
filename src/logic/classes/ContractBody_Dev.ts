@@ -59,19 +59,22 @@ class ContractBody_Dev implements ContractElement {
         errorList && (this._errorList = errorList);
         userDefineValueTypeList && (this._userDefineValueTypeList = userDefineValueTypeList);
         usingDerectiveList && (this._usingDirectiveList = usingDerectiveList);
-    }
 
-    toString = (): String => {
+    }
+    toString: () => String = (): String => {
         let res = '';
-        res += this._contractConstructor.toString();
+        res += State_Dev.listToString(this._stateList);
+        res += '\n' + this._contractConstructor.toString();
         if (this._functionList.length > 0) {
 
             res += '\n' + Function_Dev.listToString(this._functionList);
         }
+
         return (res);
     }
 
 
 }
+
 
 export default ContractBody_Dev;

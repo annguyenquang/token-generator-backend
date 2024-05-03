@@ -15,6 +15,10 @@ describe('This is State toString() function test', () => {
         const expectRes = 'uint256 internal immutable constant = 2;';
         expect(state.toString()).toBe(expectRes);
     })
-
+    test("Test listToString", () => {
+        const stateList: State_Dev[] = [new State_Dev('name', 'uint256', undefined, true, new OverriderSpecifier_Dev(), true, '2')]
+        const expectRes = 'uint256 internal immutable constant = 2;';
+        expect(State_Dev.listToString(stateList)).toBe(expectRes);
+    })
 }
 )

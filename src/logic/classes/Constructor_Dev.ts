@@ -9,7 +9,7 @@ class Constructor_Dev implements ContractElement {
     _parameterList: Parameter[] = [];
     _payable: boolean = true;
     _visibility: Visibility_Dev = Visibility_Dev.PUBLIC;
-    _functionBody: String;
+    _functionBody: String[];
     _modifierCallList: ModifierCall_Dev[] = [];
     constructor({
         functionBody,
@@ -18,7 +18,7 @@ class Constructor_Dev implements ContractElement {
         payable,
         visibility
     }: {
-        functionBody: string,
+        functionBody: String[],
         parameterList?: Parameter[],
         modifierCallList?: ModifierCall_Dev[],
         payable?: boolean,
@@ -40,6 +40,10 @@ class Constructor_Dev implements ContractElement {
     }
     // Implement the code here
     toString = (): String => {
+        let fnBodyString: String = '';
+        this._functionBody.forEach((item, idx) => {
+            fnBodyString = fnBodyString.concat(idx === 0 ? `${item}` : `\n${item}`);
+        })
         // Generate the code for the constructor
         let code = `constructor(`;
         if (this._parameterList.length > 0) {
@@ -51,11 +55,9 @@ class Constructor_Dev implements ContractElement {
             code += ` ${ModifierCall_Dev.listToString(this._modifierCallList)}`
         }
 
-        if (this._functionBody.length > 0) {
-            code += `{\n${this._functionBody}\n}`;
-        } else {
-            code += "{}";
-        }
+        code += "{" +
+            `${this._functionBody.length !== 0 ? ('\n' + fnBodyString + '\n') : ''} `
+            + "}";
 
         return code;
 

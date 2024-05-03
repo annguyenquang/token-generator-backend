@@ -3,6 +3,7 @@ import ContractCodeController from '../controllers/ContractCodeController';
 import { exec } from "child_process";
 import fs from "fs";
 const router = Router();
-router.get("/get-compiled-code", ContractCodeController.getCompiledCode)
-router.get('/', ContractCodeController.getContractCode);
+const contractCodeController = new ContractCodeController();
+router.get("/get-compiled-code", contractCodeController.getCompiledCode)
+router.get('/', contractCodeController.getContractCode);
 export default router;

@@ -1,3 +1,4 @@
+import { stat } from "fs";
 import Visibility_Dev from "../enums/Visibility_Dev";
 import { ContractElement } from "../interfaces/ContractElement";
 import OverriderSpecifier_Dev from "./OverriderSpecifier_Dev";
@@ -23,8 +24,21 @@ class State_Dev implements ContractElement {
             + `${this._visibility ? ' ' + this._visibility : ''}`
             + `${this._isImmutable ? ' immutable' : ''}`
             + `${this._isConstant ? ' constant' : ''}`
-            + `${this._overrideList?.listToString()}`)
+            + `${this._overrideList ? this._overrideList.listToString() : ''}`)
+            + ` ${this._name}`
             + `${this._value ? (` = ${this._value};`) : ''}`;
+    }
+
+    static listToString = (stateList: State_Dev[]): String => {
+        let res = '';
+        stateList.forEach((item, idx) => {
+            if (idx === 0) {
+                res += item.toString();
+            } else {
+                res += '\n' + item.toString();
+            }
+        })
+        return res;
     }
 }
 

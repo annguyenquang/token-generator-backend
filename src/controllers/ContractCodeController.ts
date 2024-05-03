@@ -1,10 +1,11 @@
-import fs from 'fs';
+import fs, { copyFileSync } from 'fs';
 import { exec } from 'child_process';
 import { Request, Response } from 'express';
 import ERC20Mapper from '../logic/mappers/ERC20Mapper';
 import { Contract_Dev } from '../logic/classes/Contract_Dev';
 import Vote_Dev from '../logic/enums/Vote_Dev';
 import AccessControl_Dev from '../logic/enums/AccessControl_Dev';
+import { Ownable__factory } from '../../typechain-types';
 const solc = require('solc');
 
 type OptionPair = {
@@ -13,7 +14,7 @@ type OptionPair = {
 }
 
 class ContractCodeController {
-    static getCompiledCode = async (req: Request, res: Response) => {
+    getCompiledCode = async (req: Request, res: Response) => {
         const contractName = req.query.name;
         console.log("CONTRACT NAME:", contractName);
         const contract = this.optionToContract(req.query);
@@ -72,15 +73,17 @@ class ContractCodeController {
         }, 2000);
     }
 
-    static getContractCode = async (req: Request, res: Response) => {
+    getContractCode = async (req: Request, res: Response) => {
         const contract = this.optionToContract(req.query);
         res.json({
             contract: contract.toString()
         });
     }
 
-    static optionToContract = (options: any): Contract_Dev => {
+    optionToContract = (options: any): Contract_Dev => {
         const contractmapper: ERC20Mapper = new ERC20Mapper();
+        contractmapper.contract.importList = ["@openzeppelin/contracts/token/ERC20/ERC20.sol"];
+        console.log("contractMapperContract:", contractmapper.getContract());
         const executeFirst: OptionPair[] = [];
         const executeSecond: OptionPair[] = [];
         const arrayOfOptions: OptionPair[] = Object.keys(options).map((key) => {
@@ -99,8 +102,7 @@ class ContractCodeController {
         const execute = (option: OptionPair) => {
             switch (option.key) {
                 case "ispermit": {
-                    // contractmapper.setIsPermit(options['ispermit'] === '1' ? true : false);
-                    contractmapper.setIsPermit(option.value === '1' ? true : false);
+                    contractmapper.setIsPermit(option.value === '1');
                     break;
                 }
                 case "ispausable": {
@@ -114,39 +116,19 @@ class ContractCodeController {
                     break;
                 }
                 case "ismintable": {
-                    // contractmapper.setIsMintable(options["ismintable"] === '1' ? true : false);
-                    contractmapper.setIsMintable(option.value === '1' ? true : false);
+                    const isMintable: boolean = (option.value === '1');
+                    if (isMintable) {
+                        if (contractmapper._accessControl === AccessControl_Dev.NONE) {
+                            contractmapper.setAccessControl(AccessControl_Dev.OWNABLE);
+                        }
+                    }
+                    console.log("isMinable::", isMintable);
+                    contractmapper.setIsMintable(isMintable);
                     break;
                 }
                 case "isflashmintable": {
                     // contractmapper.setIsFlashMintable(options["isflashmintable"] === '1' ? true : false);
-                    contractmapper.setIsFlashMintable(options.value === '1' ? true : false);
-                    break;
-                }
-                case "accesscontrol": {
-                    let ac: AccessControl_Dev;
-                    switch (option.value) {
-                        case "0": {
-                            ac = AccessControl_Dev.NONE;
-                            break;
-                        }
-                        case "1": {
-                            ac = AccessControl_Dev.OWNABLE;
-                            break;
-                        }
-                        case "2": {
-                            ac = AccessControl_Dev.ROLES;
-                            break;
-                        }
-                        case "3": {
-                            ac = AccessControl_Dev.MANAGED;
-                            break;
-                        }
-                        default: {
-                            ac = AccessControl_Dev.NONE;
-                        }
-                    }
-                    contractmapper.setAccessControl(ac);
+                    contractmapper.setIsFlashMintable(option.value === '1');
                     break;
                 }
                 case "votes": {
@@ -162,10 +144,11 @@ class ContractCodeController {
                         }
                         case "2": {
                             vote = Vote_Dev.TIMESTAMP;
-                            break
+                            break;
                         }
                         default: {
                             vote = Vote_Dev.NONE;
+                            break;
                         }
                     }
 
@@ -178,6 +161,29 @@ class ContractCodeController {
         contractmapper.setName(options["name"] ?? '');
         contractmapper.setSymbol(options["symbol"] ?? '');
         contractmapper.setPremint(options["premint"] ?? 0);
+        let ac: AccessControl_Dev;
+        switch (options["accesscontrol"]) {
+            case "0": {
+                ac = AccessControl_Dev.NONE;
+                break;
+            }
+            case "1": {
+                ac = AccessControl_Dev.OWNABLE;
+                break;
+            }
+            case "2": {
+                ac = AccessControl_Dev.ROLES;
+                break;
+            }
+            case "3": {
+                ac = AccessControl_Dev.MANAGED;
+                break;
+            }
+            default: {
+                ac = AccessControl_Dev.NONE;
+            }
+        }
+        contractmapper.setAccessControl(ac);
 
         options['license'] && contractmapper.setLicense(options['license']);
 

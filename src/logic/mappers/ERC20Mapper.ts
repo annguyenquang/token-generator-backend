@@ -7,12 +7,12 @@ import ModifierCall_Dev from "../classes/ModifierCall_Dev";
 import Constructor_Dev from "../classes/Constructor_Dev";
 import { FunctionBuilder, Function_Dev } from "../classes/Function_Dev";
 import Visibility_Dev from "../enums/Visibility_Dev";
-import Modifier_Dev from "../classes/Modifier_Dev";
 import OverriderSpecifier_Dev from "../classes/OverriderSpecifier_Dev";
 import DataLocation_Dev from "../enums/DataLocation_Dev";
 import { Parameter, ParameterBuilder } from "../classes/Parameter";
 import ContractMapper from "../interfaces/ContractMapper";
 import StateMutability from "../enums/StateMutability_Dev";
+import State_Dev from "../classes/State_Dev";
 
 type TokenInformation = {
     securityContact?: String;
@@ -22,7 +22,7 @@ const INIT_IMPORTS = ['@openzeppelin/contracts/token/ERC20/ERC20.sol'];
 const TOKEN_TYPE = "ERC20";
 class ERC20Mapper implements ContractMapper {
 
-    private contract: Contract_Dev;
+    public contract: Contract_Dev;
 
     _name: String = "";
     _symbol: String = "";
@@ -46,7 +46,7 @@ class ERC20Mapper implements ContractMapper {
             .setName("")
             .setContractBody(new ContractBody_Dev({
                 contractConstructor: new Constructor_Dev({
-                    functionBody: "",
+                    functionBody: [],
                     modifierCallList: [new ModifierCall_Dev({
                         name: TOKEN_TYPE,
                         args: [`""`, `""`]
@@ -57,6 +57,7 @@ class ERC20Mapper implements ContractMapper {
 
     }
     getContract = (): Contract_Dev => {
+        console.log(this.contract.importList);
         return this.contract;
     }
 
@@ -119,10 +120,10 @@ class ERC20Mapper implements ContractMapper {
         }
         const permitCommand = `_mint(msg.sender, ${amount} * 10 ** decimals());`;
         if (this.contract.contractBody?._contractConstructor) {
-            if (this.contract.contractBody._contractConstructor._functionBody === "") {
-                this.contract.contractBody._contractConstructor._functionBody += permitCommand;
+            if (this.contract.contractBody._contractConstructor._functionBody.length === 0) {
+                this.contract.contractBody._contractConstructor._functionBody.push(permitCommand);
             } else {
-                this.contract.contractBody._contractConstructor._functionBody += `\n${permitCommand}`;
+                this.contract.contractBody._contractConstructor._functionBody.push(`\n${permitCommand}`);
             }
         }
         this._premint = amount;
@@ -143,6 +144,11 @@ class ERC20Mapper implements ContractMapper {
                 // ADD IMPORT
                 if (!importList.includes(permitImport)) {
                     importList.push(permitImport);
+                }
+                // ADD CONSTRUCTOR MODIFIER CALL
+                const constructorModifierCall: ModifierCall_Dev = new ModifierCall_Dev({ name: 'ERC20Permit', args: [`"${this.contract.name}"`] });
+                if (!this.contract.contractBody._contractConstructor._modifierCallList.find((item) => item._name === 'ERC20Permit')) {
+                    this.contract.contractBody._contractConstructor._modifierCallList.push(constructorModifierCall);
                 }
             } else {
                 const idx = importList.findIndex((imp) => imp === permitImport);
@@ -172,7 +178,11 @@ class ERC20Mapper implements ContractMapper {
                     importList.push(burnableImport);
                     console.log("PUSHED BURNABLE IMPORT");
                 }
-            } else { const index = importList.indexOf(burnableImport); if (index > -1) { importList.splice(index, 1); } } console.log("PERMIT IS ALREADY ENABLED");
+            } else {
+                const index = importList.indexOf(burnableImport);
+                if (index > -1) { importList.splice(index, 1); }
+            }
+            console.log("PERMIT IS ALREADY ENABLED");
         }
         this._isBurnable = isBurnable;
     }
@@ -217,14 +227,14 @@ class ERC20Mapper implements ContractMapper {
                 const pauseFunction: Function_Dev = new FunctionBuilder()
                     .setName('pause')
                     .setVisibility(Visibility_Dev.PUBLIC)
-                    .setModifierList([new Modifier_Dev('onlyOwner', [])])
+                    .setModifierCallList([new ModifierCall_Dev({ name: 'onlyOwner' })])
                     .setFunctionBody(['_pause();']).build();
                 this.contract.contractBody._functionList.push(pauseFunction);
                 // add unpause()
                 const unpauseFunction: Function_Dev = new FunctionBuilder()
                     .setName('unpause')
                     .setVisibility(Visibility_Dev.PUBLIC)
-                    .setModifierList([new Modifier_Dev('onlyOwner', [])])
+                    .setModifierCallList([new ModifierCall_Dev({ name: 'onlyOwner' })])
                     .setFunctionBody(['_unpause();']).build();
                 this.contract.contractBody._functionList.push(unpauseFunction);
                 // add _update()
@@ -290,27 +300,31 @@ class ERC20Mapper implements ContractMapper {
     }
 
     setIsFlashMintable = (isFlashMint: boolean) => {
+        console.log("isFlashMint: ", isFlashMint);
         const ERC20FlashMintImport = '@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol';
         const ERC20FlashMintable = 'ERC20FlashMint';
-        if (this._isFlashMint && isFlashMint) {
+        console.log("Came HERE");
+        if (this._isFlashMint === isFlashMint) {
             return;
         } else {
-            const importList = this.contract.importList;
-            const inheritances = this.contract.inheritances;
             if (isFlashMint) {
-                if (!importList.includes(ERC20FlashMintImport)) {
-                    importList.push(ERC20FlashMintImport);
+                console.log("Came HERE2");
+                if (!this.contract.importList.includes(ERC20FlashMintImport)) {
+                    this.contract.importList.push(ERC20FlashMintImport);
                 }
-                if (!inheritances.includes(ERC20FlashMintable)) {
-                    inheritances.push(ERC20FlashMintable);
+                if (!this.contract.inheritances.includes(ERC20FlashMintable)) {
+                    this.contract.inheritances.push(ERC20FlashMintable);
                 }
             } else {
-                const index = importList.indexOf(ERC20FlashMintImport);
-                if (index > -1) {
-                    importList.splice(index, 1);
+                // REMOVE IMPORTS
+                const index = this.contract.importList.indexOf(ERC20FlashMintImport);
+                console.log("INDEX: ", index);
+                if (index !== -1) {
+                    this.contract.importList.splice(index, 1);
                 }
-                if (inheritances.includes(ERC20FlashMintable)) {
-                    inheritances.splice(this.contract.inheritances.indexOf(ERC20FlashMintable), 1);
+                // REMOVE INHERITANCE
+                if (this.contract.inheritances.includes(ERC20FlashMintable)) {
+                    this.contract.inheritances.splice(this.contract.inheritances.indexOf(ERC20FlashMintable), 1);
                 }
             }
         }
@@ -328,40 +342,61 @@ class ERC20Mapper implements ContractMapper {
     }
 
     setIsMintable = (isMintable: boolean) => {
-        if (isMintable && this._isMintable) {
+        if (isMintable === this._isMintable) {
             return;
         } else {
-            const inheritances = this.contract.inheritances;
             const functionList = this.contract.contractBody._functionList;
-            const constructorModifierCall = this.contract.contractBody._contractConstructor._modifierCallList;
             if (isMintable) {
-                // ADD INHERITANCE 
-                if (!inheritances.includes('Ownable')) {
-                    inheritances.push('Ownable');
+                if (this._accessControl === AccessControl_Dev.NONE) {
+                    console.log("Access control have to be set before mintable")
+                    return;
                 }
-                // ADD CONSTUCTOR MODIFIER CALLL
-                if (!constructorModifierCall.find((item) => item._name === 'Ownable')) {
-                    constructorModifierCall.push(new ModifierCall_Dev({ name: 'Ownable', args: ["initialOwner"] }));
-                }
+
                 // ADD MINT FUNCTION
+                let modifierList: ModifierCall_Dev[] = [];
+                //  set mint function modifier list
+                switch (this._accessControl) {
+                    case AccessControl_Dev.OWNABLE: {
+                        modifierList = [new ModifierCall_Dev({ name: 'onlyOwner' })]
+                        break;
+                    }
+                    case AccessControl_Dev.ROLES: {
+                        // ADD MINTER_ROLE CONSTANCE
+                        console.log("CAME HERE33");
+                        const stateName = "MINTER_ROLE";
+                        const idx = this.contract.contractBody._stateList.findIndex((item) => (item._name === stateName));
+                        if (idx === - 1) {
+                            const state: State_Dev = new State_Dev("MINTER_ROLE", "bytes32", Visibility_Dev.PUBLIC, true, undefined, undefined, "keccak256(\"MINTER_ROLE\")");
+                            this.contract.contractBody._stateList.push(state);
+                        }
+                        //ADD CONSTRUCTOR FUNCTION BODY 
+                        const fnString = "_grantRole(MINTER_ROLE, minter);";
+                        if (!this.contract.contractBody._contractConstructor._functionBody.includes(fnString)) {
+                            this.contract.contractBody._contractConstructor._functionBody.push(fnString);
+                        }
+
+                        modifierList = [new ModifierCall_Dev({ name: 'onlyRole', args: ['MINTER_ROLE'] })]
+                        break;
+                    }
+                    case AccessControl_Dev.MANAGED: {
+                        modifierList = [new ModifierCall_Dev({ name: 'restricted' })]
+                        break;
+                    }
+                    default: {
+                        this.setAccessControl(AccessControl_Dev.OWNABLE);
+                    }
+                }
+                console.log("Modifier call LIST", modifierList);
                 const mintFunction: Function_Dev = new FunctionBuilder()
                     .setName('mint')
                     .setParameterList([new Parameter('address', 'to', DataLocation_Dev.NONE), new Parameter('uint256', 'amount', DataLocation_Dev.NONE)])
                     .setVisibility(Visibility_Dev.PUBLIC)
-                    .setModifierList([new Modifier_Dev('onlyOwner', [])])
+                    .setModifierCallList(modifierList)
                     .setFunctionBody(['_mint(to, amount);'])
                     .build();
                 functionList.push(mintFunction);
                 // this.contract.contractBody._functionList = functionList;
             } else {
-                // REMOVE INHERITANCE IF EXIST
-                if (inheritances.includes('Ownable')) {
-                    inheritances.splice(inheritances.indexOf('Ownable'), 1);
-                }
-                // REMOVE CONSTUCTOR MODIFIER CaLl IF EXIST 
-                if (constructorModifierCall.find((item) => item._name === 'Ownable')) {
-                    constructorModifierCall.splice(constructorModifierCall.findIndex((item) => item._name === 'Ownable'), 1);
-                }
                 // REMOVE MINT FUNCTION IF EXIST
                 if (functionList.find((item) => item._name === 'mint')) {
                     functionList.splice(functionList.findIndex((item) => item._name === 'mint'), 1);
@@ -374,6 +409,12 @@ class ERC20Mapper implements ContractMapper {
 
     setVotes(Vote: Vote_Dev) {
         if (Vote === Vote_Dev.NONE) {
+            //DELETE IMPORT    
+            const voteImport = "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+            const idx = this.contract.importList.indexOf(voteImport);
+            if (this.contract.importList.includes(voteImport)) {
+                this.contract.importList.splice(idx, 1);
+            }
             return;
         }
 
@@ -410,7 +451,7 @@ class ERC20Mapper implements ContractMapper {
                 this.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push("ERC20Votes");
             }
         }
-        //2. function nonces 
+        //2. func"jtion nonces 
         {
             const fName = "nonces";
             const idx: number = this.contract.contractBody._functionList.findIndex((item) => (item._name === fName))
@@ -469,6 +510,7 @@ class ERC20Mapper implements ContractMapper {
                 }
             }
         }
+        this._vote = Vote;
     }
 
     setAccessControl(ac: AccessControl_Dev) {
@@ -538,7 +580,7 @@ class ERC20Mapper implements ContractMapper {
         }
         const handleCaseManaged = () => {
             //ADD CONSTRUCTOR PARAM
-            const initialAuthorityParamName = 'initialOwner';
+            const initialAuthorityParamName = 'initialAuthority';
             const initialAuthorityParam = new ParameterBuilder()
                 .setName(initialAuthorityParamName)
                 .setType('address')
@@ -559,7 +601,7 @@ class ERC20Mapper implements ContractMapper {
             }
             //ADD CONSTRUCTOR MODIFIER CALL
             const modifierName = "AccessManaged";
-            const modifierArgs = ["initialAuthority"];
+            const modifierArgs = [initialAuthorityParamName];
             const constructorModifierCall = this.contract.contractBody._contractConstructor._modifierCallList;
             if (!constructorModifierCall.find((item) => item._name === modifierName)) {
                 constructorModifierCall.push(new ModifierCall_Dev({ name: modifierName, args: modifierArgs }));
@@ -584,6 +626,7 @@ class ERC20Mapper implements ContractMapper {
                 return;
             }
         }
+        this._accessControl = ac;
     }
 }
 

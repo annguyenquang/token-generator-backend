@@ -1,6 +1,7 @@
 import StateMutability from "../enums/StateMutability_Dev";
 import Visibility_Dev from "../enums/Visibility_Dev";
 import { ContractElement } from "../interfaces/ContractElement";
+import ModifierCall_Dev from "./ModifierCall_Dev";
 import Modifier_Dev from "./Modifier_Dev";
 import OverriderSpecifier_Dev from "./OverriderSpecifier_Dev";
 import { Parameter } from "./Parameter";
@@ -10,7 +11,7 @@ class Function_Dev implements ContractElement {
     _parameterList: Parameter[] = [];
     _visibility: Visibility_Dev = Visibility_Dev.INTERNAL;
     _stateMutability: StateMutability = StateMutability.NONE;
-    _modifierList: Modifier_Dev[] = [];
+    _modifierCallList: ModifierCall_Dev[] = [];
     _isPayable: boolean = false;
     _isVirtual: boolean = false;
     _overrideSpecifier: OverriderSpecifier_Dev | undefined;
@@ -24,7 +25,7 @@ class Function_Dev implements ContractElement {
         parameterList?: Parameter[],
         visibility?: Visibility_Dev,
         stateMutability?: StateMutability,
-        modifierList?: Modifier_Dev[],
+        modifierCallList?: ModifierCall_Dev[],
         isPayable?: boolean,
         isVirtual?: boolean,
         overrideSpecifier?: OverriderSpecifier_Dev,
@@ -37,7 +38,7 @@ class Function_Dev implements ContractElement {
             parameterList,
             visibility,
             stateMutability,
-            modifierList,
+            modifierCallList,
             isPayable,
             isVirtual,
             overrideSpecifier,
@@ -48,7 +49,7 @@ class Function_Dev implements ContractElement {
         this._functionBody = functionBody;
         stateMutability && (this._stateMutability = stateMutability);
         overrideSpecifier && (this._overrideSpecifier = overrideSpecifier);
-        modifierList && (this._modifierList = modifierList);
+        modifierCallList && (this._modifierCallList = modifierCallList);
         parameterList && (this._parameterList = parameterList);
         returns && (this._returns = returns);
         visibility && (this._visibility = visibility);
@@ -67,7 +68,7 @@ class Function_Dev implements ContractElement {
             ` ${this._name}`
             + `(${Parameter.listToString(this._parameterList)})`
             + `${this._visibility ? (" " + this._visibility) : ""}`
-            + `${this._modifierList.length > 0 ? (" " + Modifier_Dev.listToString(this._modifierList)) : ""}`
+            + `${this._modifierCallList.length > 0 ? (" " + ModifierCall_Dev.listToString(this._modifierCallList)) : ""}`
             + `${this._stateMutability !== StateMutability.NONE ? (" " + this._stateMutability) : ""}`
             + `${this._isPayable ? " payable" : ""}`
             + `${this._isVirtual ? " virtual" : ""}`
@@ -97,7 +98,7 @@ class FunctionBuilder {
     private _parameterList: Parameter[] = [];
     private _visibility: Visibility_Dev = Visibility_Dev.INTERNAL;
     private _stateMutability: StateMutability = StateMutability.NONE;
-    private _modifierList: Modifier_Dev[] = [];
+    private _modifierCallList: ModifierCall_Dev[] = [];
     private _isPayable: boolean = false;
     private _isVirtual: boolean = false;
     private _overrideSpecifier: OverriderSpecifier_Dev | undefined;
@@ -125,8 +126,8 @@ class FunctionBuilder {
         return this;
     }
 
-    setModifierList(modifierList: Modifier_Dev[]): FunctionBuilder {
-        this._modifierList = modifierList;
+    setModifierCallList(modifierCallList: ModifierCall_Dev[]): FunctionBuilder {
+        this._modifierCallList = modifierCallList;
         return this;
     }
     setIsPayable(isPayable: boolean): FunctionBuilder {
@@ -160,7 +161,7 @@ class FunctionBuilder {
             parameterList: this._parameterList,
             visibility: this._visibility,
             stateMutability: this._stateMutability,
-            modifierList: this._modifierList,
+            modifierCallList: this._modifierCallList,
             isPayable: this._isPayable,
             isVirtual: this._isVirtual,
             overrideSpecifier: this._overrideSpecifier,
