@@ -1,12 +1,14 @@
-import fs, { copyFileSync } from 'fs';
+import fs from 'fs';
 import { exec } from 'child_process';
 import { Request, Response } from 'express';
 import ERC20Mapper from '../logic/mappers/ERC20Mapper';
 import { Contract_Dev } from '../logic/classes/Contract_Dev';
 import Vote_Dev from '../logic/enums/Vote_Dev';
 import AccessControl_Dev from '../logic/enums/AccessControl_Dev';
-import { Ownable__factory } from '../../typechain-types';
-const solc = require('solc');
+import AC_NoneState from '../logic/states/access_control/child_classes/AC_NoneState';
+import AC_OwnableState from '../logic/states/access_control/child_classes/AC_OwnableState';
+import AC_RolesState from '../logic/states/access_control/child_classes/AC_RolesState';
+import AC_ManagedState from '../logic/states/access_control/child_classes/AC_ManagedState';
 
 type OptionPair = {
     key: string,
@@ -16,7 +18,6 @@ type OptionPair = {
 class ContractCodeController {
     getCompiledCode = async (req: Request, res: Response) => {
         const contractName = req.query.name;
-        console.log("CONTRACT NAME:", contractName);
         const contract = this.optionToContract(req.query);
         const contractPath = `./contracts/${contractName}.sol`;
         const outputPath = `./artifacts/contracts/${contractName}.sol`;
@@ -83,7 +84,6 @@ class ContractCodeController {
     optionToContract = (options: any): Contract_Dev => {
         const contractmapper: ERC20Mapper = new ERC20Mapper();
         contractmapper.contract.importList = ["@openzeppelin/contracts/token/ERC20/ERC20.sol"];
-        console.log("contractMapperContract:", contractmapper.getContract());
         const executeFirst: OptionPair[] = [];
         const executeSecond: OptionPair[] = [];
         const arrayOfOptions: OptionPair[] = Object.keys(options).map((key) => {
@@ -118,11 +118,16 @@ class ContractCodeController {
                 case "ismintable": {
                     const isMintable: boolean = (option.value === '1');
                     if (isMintable) {
-                        if (contractmapper._accessControl === AccessControl_Dev.NONE) {
-                            contractmapper.setAccessControl(AccessControl_Dev.OWNABLE);
+                        const state = contractmapper._accessControlState.constructor.name;
+                        console.log("STATE(CCC)::", state);
+                        if (state === "AC_NoneState") {
+                            console.log("Access control have to be set before mintable");
+                            contractmapper.changeAccessControlState(AccessControl_Dev.OWNABLE);
+                            console.log("ac:", contractmapper._accessControl);
+                            console.log("acs:", contractmapper._accessControlState.constructor.name);
                         }
                     }
-                    console.log("isMinable::", isMintable);
+                    // console.log("isMinable::", isMintable);
                     contractmapper.setIsMintable(isMintable);
                     break;
                 }
@@ -161,32 +166,11 @@ class ContractCodeController {
         contractmapper.setName(options["name"] ?? '');
         contractmapper.setSymbol(options["symbol"] ?? '');
         contractmapper.setPremint(options["premint"] ?? 0);
-        let ac: AccessControl_Dev;
-        switch (options["accesscontrol"]) {
-            case "0": {
-                ac = AccessControl_Dev.NONE;
-                break;
-            }
-            case "1": {
-                ac = AccessControl_Dev.OWNABLE;
-                break;
-            }
-            case "2": {
-                ac = AccessControl_Dev.ROLES;
-                break;
-            }
-            case "3": {
-                ac = AccessControl_Dev.MANAGED;
-                break;
-            }
-            default: {
-                ac = AccessControl_Dev.NONE;
-            }
-        }
-        contractmapper.setAccessControl(ac);
-
         options['license'] && contractmapper.setLicense(options['license']);
-
+        console.log("option[accesscontrol]::", options["accesscontrol"]);
+        // SET ACCESS CONTROL  
+        const ac: AccessControl_Dev = parseInt(options["accesscontrol"]);
+        contractmapper.changeAccessControlState(ac);
         executeFirst.forEach(option => {
             execute(option);
         });
@@ -194,10 +178,6 @@ class ContractCodeController {
         executeSecond.forEach(option => {
             execute(option);
         });
-
-        console.log("EXECUTE FIRST:", executeFirst);
-        console.log("EXECUTE SECOND:", executeSecond);
-
         return contractmapper.getContract();
     }
 }
