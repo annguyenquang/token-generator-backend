@@ -8,7 +8,6 @@ import Visibility_Dev from "../../../enums/Visibility_Dev";
 import AccessControlState from "../AccessControlState";
 import ERC20Mapper from "../../../mappers/ERC20Mapper";
 
-const TOKEN_TYPE = "ERC20";
 
 class RolesState extends AccessControlState {
     constructor(mapper: ERC20Mapper) {
@@ -89,7 +88,15 @@ class RolesState extends AccessControlState {
                 if (!this._mapper.contract.contractBody._contractConstructor._functionBody.includes(fnString)) {
                     this._mapper.contract.contractBody._contractConstructor._functionBody.push(fnString);
                 }
-
+                // ADD MINTER PARAM TO CONSTRUCTOR
+                const minterParamName = 'minter';
+                const paramType = 'address';
+                const minterParam = new ParameterBuilder()
+                    .setName(minterParamName)
+                    .setType(paramType)
+                    .setDataLocation(DataLocation_Dev.NONE)
+                    .build();
+                this._mapper.contract.contractBody._contractConstructor._parameterList.push(minterParam);
                 const modifierList = [new ModifierCall_Dev({ name: 'onlyRole', args: ['MINTER_ROLE'] })]
                 const mintFunction: Function_Dev = new FunctionBuilder()
                     .setName('mint')
