@@ -7,6 +7,7 @@ import DataLocation_Dev from "../../../enums/DataLocation_Dev";
 import Visibility_Dev from "../../../enums/Visibility_Dev";
 import AccessControlState from "../AccessControlState";
 import ERC20Mapper from "../../../mappers/ERC20Mapper";
+import OverriderSpecifier_Dev from "../../../classes/OverriderSpecifier_Dev";
 
 
 class RolesState extends AccessControlState {
@@ -64,6 +65,80 @@ class RolesState extends AccessControlState {
         super.setIsBurnable(isBurnable);
     };
     setIsPausable = (isPausable: boolean) => {
+        // ADD IMPORT
+        const pausableImport = '@openzeppelin/contracts/token/ERC20/extensions/Pausable.sol';
+        if (!this._mapper.contract.importList.includes(pausableImport)) {
+            this._mapper.contract.importList.push(pausableImport);
+        }
+        // ADD INHERITANCE
+        const pausableInheritance = 'ERC20Pausable';
+        if (!this._mapper.contract.inheritances.includes(pausableInheritance)) {
+            this._mapper.contract.inheritances.push(pausableInheritance);
+        }
+        // ADD PAUSER_ROLE STATE
+        const stateName = "PAUSER_ROLE";
+        const stateValue = `keccak256("PAUSER_ROLE")`;
+        const state = new State_Dev(stateName, "bytes32", Visibility_Dev.PUBLIC, true, undefined, undefined, stateValue);
+        if (!this._mapper.contract.contractBody._stateList.find((item) => item._name === stateName)) {
+            this._mapper.contract.contractBody._stateList.push(state);
+        }
+        //ADD CONSTRUCTOR PARAM
+        const pauserParamName = 'pauser';
+        const paramType = 'address';
+        const pauserParam = new ParameterBuilder()
+            .setName(pauserParamName)
+            .setType(paramType)
+            .setDataLocation(DataLocation_Dev.NONE)
+            .build();
+        if (!this._mapper.contract.contractBody._contractConstructor._parameterList.find((p) => p._name === pauserParamName)) {
+            this._mapper.contract.contractBody._contractConstructor._parameterList.push(pauserParam);
+        }
+
+        //ADD FUNCTION BODY
+        const functionString = `_grandRole(${stateName}, ${pauserParamName})`;
+        if (!this._mapper.contract.contractBody._contractConstructor._functionBody.includes(functionString)) {
+            this._mapper.contract.contractBody._contractConstructor._functionBody.push(functionString);
+        }
+
+        // add pause()
+        {
+            const pauseFunction: Function_Dev = new FunctionBuilder()
+                .setName('pause')
+                .setVisibility(Visibility_Dev.PUBLIC)
+                .setModifierCallList([new ModifierCall_Dev({ name: 'onlyRole', args: ['PAUSER_ROLE'] })])
+                .setFunctionBody(['_pause();']).build();
+            this._mapper.contract.contractBody._functionList.push(pauseFunction);
+        }
+        // add unpause()
+        {
+            const unpauseFunction: Function_Dev = new FunctionBuilder()
+                .setName('unpause')
+                .setVisibility(Visibility_Dev.PUBLIC)
+                .setModifierCallList([new ModifierCall_Dev({ name: 'onlyRole', args: ['PAUSER_ROLE'] })])
+                .setFunctionBody(['_unpause();']).build();
+            this._mapper.contract.contractBody._functionList.push(unpauseFunction);
+        }
+        // add _update()
+        {
+            const fName = "_update";
+            const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === fName);
+            if (idx === -1) {
+                const updateFunction: Function_Dev = new FunctionBuilder()
+                    .setName(fName)
+                    .setVisibility(Visibility_Dev.INTERNAL)
+                    .setParameterList([
+                        new Parameter('address', 'from', DataLocation_Dev.NONE),
+                        new Parameter('address', 'to', DataLocation_Dev.NONE),
+                        new Parameter('uint256', 'value', DataLocation_Dev.NONE)
+                    ])
+                    .setOverrideSpecifier(new OverriderSpecifier_Dev(["ERC20", "ERC20Pausable"]))
+                    .setFunctionBody(['super._update(from, to, value);'])
+                    .build();
+                this._mapper.contract.contractBody._functionList.push(updateFunction);
+            } else {
+                this._mapper.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push("ERCPausable");
+            }
+        }
     };
     setIsFlashMintable = (isFlashMint: boolean) => {
         super.setIsFlashMintable(isFlashMint);

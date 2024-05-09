@@ -35,6 +35,7 @@ class AC_NoneState extends AccessControlState {
         super.setIsBurnable(isBurnable);
     };
     setIsPausable = (isPausable: boolean) => {
+        throw Error("Can not set pausable without access control");
     };
     setIsFlashMintable = (isFlashMint: boolean) => {
         super.setIsFlashMintable(isFlashMint);
