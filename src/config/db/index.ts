@@ -1,5 +1,3 @@
-import { on } from "events";
-
 const mongoose = require("mongoose");
 
 const localDB = "mongodb://localhost:27017/token_generator_dev";
