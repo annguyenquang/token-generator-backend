@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import DeploymentModel from '../models/DeploymentModel';
 import IDeploymentRepository from '../repostiories/DeploymentRepository/IDeploymentRepository';
 
 class DeploymentController {

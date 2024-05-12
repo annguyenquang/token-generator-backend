@@ -11,6 +11,7 @@ export default new Schema({
         address: String,
         deployHash: String,
         blockNumber: Number,
+        timeStamp: Number,
         abi: [],
         byteCode: String,
     }]
