@@ -83,7 +83,7 @@ class ContractCodeController {
     getERC721ContractCode = async (req: Request, res: Response) => {
         const contract = this.optionToERC721Contract(req.query);
         res.json({
-            contract: contract.toString(
+            contract: contract.toString()
         });
     }
 
