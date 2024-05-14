@@ -183,31 +183,29 @@ class AC_OwnableState extends AccessControlState {
     //     super.setIsFlashMintable(isFlashMint);
     // };
     setIsMintable = (isMintable: boolean) => {
-        console.log("isMintable(at AC_OwnableState):", isMintable);
         if (isMintable === this._mapper._isMintable) {
             return;
         } else {
             const functionList = this._mapper.contract.contractBody._functionList;
             if (isMintable) {
-                // ADD MINT FUNCTION
-                //  set mint function modifier list
-                let modifierList: ModifierCall_Dev[] = [new ModifierCall_Dev({ name: 'onlyOwner' })];
-                // console.log("Modifier call LIST", modifierList);
-
-                const mintFunction: Function_Dev = new FunctionBuilder()
-                    .setName('mint')
-                    .setParameterList([new Parameter('address', 'to', DataLocation_Dev.NONE), new Parameter('uint256', 'amount', DataLocation_Dev.NONE)])
-                    .setVisibility(Visibility_Dev.PUBLIC)
-                    .setModifierCallList(modifierList)
-                    .setFunctionBody(['_mint(to, amount);'])
-                    .build();
-                console.log("MINT FUNCTION::", mintFunction);
-                functionList.push(mintFunction);
-                // this._mapper.contract.contractBody._functionList = functionList;
+                // ADD safeMint FUNCTION
+                {
+                    // Set mint function modifier list
+                    const modifierList: ModifierCall_Dev[] = [new ModifierCall_Dev({ name: 'onlyOwner' })];
+                    const funcName = 'safeMint';
+                    const safeMintFunction: Function_Dev = new FunctionBuilder()
+                        .setName(funcName)
+                        .setParameterList([new Parameter('address', 'to'), new Parameter('uint256', 'tokenId')])
+                        .setVisibility(Visibility_Dev.PUBLIC)
+                        .setModifierCallList(modifierList)
+                        .setFunctionBody([`_safeMint(to, tokenId);`])
+                        .build();
+                    functionList.push(safeMintFunction);
+                }
             } else {
                 // REMOVE MINT FUNCTION IF EXIST
-                if (functionList.find((item) => item._name === 'mint')) {
-                    functionList.splice(functionList.findIndex((item) => item._name === 'mint'), 1);
+                if (functionList.find((item) => item._name === 'safeMint')) {
+                    functionList.splice(functionList.findIndex((item) => item._name === 'safeMint'), 1);
                 }
             }
         }

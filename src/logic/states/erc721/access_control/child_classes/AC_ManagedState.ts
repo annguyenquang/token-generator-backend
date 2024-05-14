@@ -129,21 +129,23 @@ class AC_ManagedState extends AccessControlState {
                 }
 
                 // ADD MINT FUNCTION
-                const modifierList = [new ModifierCall_Dev({ name: 'restricted' })]
-                //  set mint function modifier list
-                const mintFunction: Function_Dev = new FunctionBuilder()
-                    .setName('mint')
-                    .setParameterList([new Parameter('address', 'to', DataLocation_Dev.NONE), new Parameter('uint256', 'amount', DataLocation_Dev.NONE)])
-                    .setVisibility(Visibility_Dev.PUBLIC)
-                    .setModifierCallList(modifierList)
-                    .setFunctionBody(['_mint(to, amount);'])
-                    .build();
-                functionList.push(mintFunction);
-                // this._mapper.contract.contractBody._functionList = functionList;
+                {
+                    //  set mint function modifier list
+                    const modifierList: ModifierCall_Dev[] = [new ModifierCall_Dev({ name: 'restricted' })]
+                    const funcName: String = 'safeMint';
+                    const mintFunction: Function_Dev = new FunctionBuilder()
+                        .setName(funcName)
+                        .setParameterList([new Parameter('address', 'to'), new Parameter('uint256', 'tokenId')])
+                        .setVisibility(Visibility_Dev.PUBLIC)
+                        .setModifierCallList(modifierList)
+                        .setFunctionBody(['_safeMint(to, tokenId);'])
+                        .build();
+                    functionList.push(mintFunction);
+                }
             } else {
                 // REMOVE MINT FUNCTION IF EXIST
-                if (functionList.find((item) => item._name === 'mint')) {
-                    functionList.splice(functionList.findIndex((item) => item._name === 'mint'), 1);
+                if (functionList.find((item) => item._name === 'safeMint')) {
+                    functionList.splice(functionList.findIndex((item) => item._name === 'safeMint'), 1);
                 }
             }
         }

@@ -126,13 +126,16 @@ class ERC721Mapper implements ContractMapper {
         this._accessControlState.setIsBurnable(isBurnable);
     }
     setIsMintable(isMintable: boolean) {
+        if (this._accessControl === AccessControl_Dev.NONE) {
+            this.changeAccessControlState(AccessControl_Dev.OWNABLE);
+        }
         this._accessControlState.setIsMintable(isMintable);
     }
     setVotes(vote: Vote_Dev) {
         this._accessControlState.setVotes(vote);
     }
     setIsAutoIncrementIds(isAutoIncrementIds: boolean) {
-
+        this._accessControlState.setIsAutoIncrementIds(isAutoIncrementIds);
     }
     setIsUriStorage(isURIStorage: boolean) {
         this._accessControlState.setIsURIStorage(isURIStorage);

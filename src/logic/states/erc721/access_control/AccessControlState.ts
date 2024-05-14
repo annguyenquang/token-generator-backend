@@ -2,11 +2,12 @@ import { FunctionBuilder, Function_Dev } from "../../../classes/Function_Dev";
 import ModifierCall_Dev from "../../../classes/ModifierCall_Dev";
 import OverriderSpecifier_Dev from "../../../classes/OverriderSpecifier_Dev";
 import { ParameterBuilder } from "../../../classes/Parameter";
+import State_Dev from "../../../classes/State_Dev";
+import AccessControl_Dev from "../../../enums/AccessControl_Dev";
 import DataLocation_Dev from "../../../enums/DataLocation_Dev";
 import StateMutability from "../../../enums/StateMutability_Dev";
 import Visibility_Dev from "../../../enums/Visibility_Dev";
 import Vote_Dev from "../../../enums/Vote_Dev";
-import ContractMapper from "../../../interfaces/ContractMapper";
 import ERC721Mapper from "../../../mappers/ERC721Mapper";
 
 export const TOKEN_TYPE = "ERC721";
@@ -98,11 +99,126 @@ abstract class AccessControlState {
             return;
         }
         // ADD IMPORTS
+        {
+            const EIP721Import: String = '@openzeppelin/contracts/utils/cryptography/EIP712.sol';
+            if (!this._mapper.contract.importList.includes(EIP721Import)) {
+                this._mapper.contract.importList.push(EIP721Import);
+            }
+            const ERC721VotesImport: String = '@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol';
+            if (!this._mapper.contract.importList.includes(ERC721VotesImport)) {
+                this._mapper.contract.importList.push(ERC721VotesImport);
+            }
+        }
         // ADD INHERITANCES
+        {
+            const ERC721VotesInheritance: String = 'ERC721Votes';
+            if (!this._mapper.contract.inheritances.includes(ERC721VotesInheritance)) {
+                this._mapper.contract.inheritances.push(ERC721VotesInheritance);
+            }
+            const EIP712Inheritance: String = 'EIP712';
+            if (!this._mapper.contract.inheritances.includes(EIP712Inheritance)) {
+                this._mapper.contract.inheritances.push(EIP712Inheritance);
+            }
+        }
         // ADD CONSTRUCTOR MODIFIER
-        this._mapper._vote = vote;
-    }
+        {
+            const modifierName = "EIP721";
+            const modifierArgs: String[] = [`\"${this._mapper._name}\"`, '\"1\"'];
+            const constructorModifierCall = this._mapper.contract.contractBody._contractConstructor._modifierCallList;
+            if (!constructorModifierCall.find((item) => item._name === modifierName)) {
+                constructorModifierCall.push(new ModifierCall_Dev({ name: modifierName, args: modifierArgs }));
+            }
+        }
+        // ADD FUNCTIONS
+        {
+            const overriderSpecifier = new OverriderSpecifier_Dev(["ERC721", "ERC721Votes"]); // Both _update and _increaseBalance have the same overrider specifier    
+            const ERC721OverriderSpecifier: String = "ERC721Votes";
+            // ADD _update FUNC
+            {
+                const funcName: String = '_update';
+                const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === funcName);  // check if the function already exists
+                if (idx > -1) {
+                    this._mapper.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push(ERC721OverriderSpecifier);
+                } else {
+                    const func: Function_Dev = new FunctionBuilder()
+                        .setName(funcName)
+                        .setParameterList([
+                            new ParameterBuilder().setType("address").setName("to").build(),
+                            new ParameterBuilder().setType("uint256").setName("tokenId").build(),
+                            new ParameterBuilder().setType("address").setName("auth").build()
+                        ])
+                        .setVisibility(Visibility_Dev.INTERNAL)
+                        .setStateMutability(StateMutability.PURE)
+                        .setOverrideSpecifier(overriderSpecifier)
+                        .setReturns([new ParameterBuilder().setType("address").build()])
+                        .setFunctionBody([`super._update(to, tokenId, auth);`])
+                        .build();
+                    this._mapper.contract.contractBody._functionList.push(func);
+                }
+                // ADD _increaseBalance FUNC
+                {
+                    const funcName: String = '_increaseBalance';
+                    const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === funcName);  // check if the function already exists
+                    if (idx > -1) {
+                        this._mapper.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push(ERC721OverriderSpecifier);
+                    } else {
+                        const func: Function_Dev = new FunctionBuilder()
+                            .setName(funcName)
+                            .setParameterList([
+                                new ParameterBuilder().setType("address").setName("account").build(),
+                                new ParameterBuilder().setType("uint128").setName("value").build(),
+                            ])
+                            .setVisibility(Visibility_Dev.INTERNAL)
+                            .setOverrideSpecifier(overriderSpecifier)
+                            .setFunctionBody([`super._increaseBalance(account, value);`])
+                            .build();
+                        this._mapper.contract.contractBody._functionList.push(func);
+                    }
+                }
 
+            }
+        }
+
+        if (vote === Vote_Dev.TIMESTAMP) {
+            //ADD FUNCTIONS 
+            {
+                // ADD clock FUNC
+                {
+                    const funcName: String = 'clock';
+                    const idx: Number = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === funcName);  // check if the function already existsk
+                    if (idx === -1) {
+                        const func: Function_Dev = new FunctionBuilder()
+                            .setName(funcName)
+                            .setVisibility(Visibility_Dev.PUBLIC)
+                            .setStateMutability(StateMutability.VIEW)
+                            .setOverrideSpecifier(new OverriderSpecifier_Dev())
+                            .setReturns([new ParameterBuilder().setType("uint48").build()])
+                            .setFunctionBody([`return uint48(block.timestamp);`])
+                            .build()
+                        this._mapper.contract.contractBody._functionList.push(func);
+                    }
+                }
+                // ADD CLOCK_MODE FUNC
+                {
+                    const funcName: String = 'CLOCK_MODE';
+                    const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === funcName);  // check if the function already exists
+                    if (idx === -1) {
+                        const func: Function_Dev = new FunctionBuilder()
+                            .setName(funcName)
+                            .setVisibility(Visibility_Dev.PUBLIC)
+                            .setStateMutability(StateMutability.PURE)
+                            .setOverrideSpecifier(new OverriderSpecifier_Dev())
+                            .setReturns([new ParameterBuilder().setType("string").setDataLocation(DataLocation_Dev.MEMORY).build()])
+                            .setFunctionBody([`return uint8(1);`])
+                            .build()
+                        this._mapper.contract.contractBody._functionList.push(func);
+                    }
+                }
+            }
+
+            this._mapper._vote = vote;
+        }
+    }
     setIsEnumerable = (isEnumerable: boolean) => {
         if (isEnumerable === this._mapper._isEnumerable) {
             return;
@@ -265,7 +381,36 @@ abstract class AccessControlState {
         }
         this._mapper._isURIStorage = isURIStorage;
     }
-
+    setIsAutoIncrementIds = (isAutoIncrementIds: boolean) => {
+        if (isAutoIncrementIds === this._mapper._isAutoIncrementIds) {
+            return;
+        }
+        // Mintable have to be set to true
+        if (!this._mapper._isMintable) {
+            // CHekc if the mapper access control state is class AC_NoneState
+            if (this._mapper._accessControlState.constructor.name === "AC_NoneState") {
+                this._mapper.changeAccessControlState(AccessControl_Dev.OWNABLE);
+            }
+            this._mapper.setIsMintable(true);
+        }
+        // ADD STATE 
+        {
+            const nextTokenIdState = new State_Dev("_nextTokenId", "uint256", Visibility_Dev.PRIVATE);
+            if (!this._mapper.contract.contractBody._stateList.includes(nextTokenIdState)) {
+                this._mapper.contract.contractBody._stateList.push(nextTokenIdState);
+            }
+        }
+        // ADD A LINE FOR safeMint FUNCTION
+        {
+            const newLine: String = 'uint256 tokenId = _nextTokenId++;';
+            const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === 'safeMint');
+            if (idx > -1) {
+                const currentFunctionBody: String[] = this._mapper.contract.contractBody._functionList[idx]._functionBody;
+                this._mapper.contract.contractBody._functionList[idx]._functionBody = [newLine, ...currentFunctionBody];
+            }
+        }
+        this._mapper._isAutoIncrementIds = isAutoIncrementIds;
+    }
     abstract setIsPausable: (isPausable: boolean) => void;
     abstract setIsMintable: (isMintable: boolean) => void;
 }
