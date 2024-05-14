@@ -5,19 +5,12 @@ import Upgradeability_Dev from "../enums/Upgradeability_Dev";
 import ContractBody_Dev from "../classes/ContractBody_Dev";
 import ModifierCall_Dev from "../classes/ModifierCall_Dev";
 import Constructor_Dev from "../classes/Constructor_Dev";
-import { FunctionBuilder, Function_Dev } from "../classes/Function_Dev";
-import Visibility_Dev from "../enums/Visibility_Dev";
-import OverriderSpecifier_Dev from "../classes/OverriderSpecifier_Dev";
-import DataLocation_Dev from "../enums/DataLocation_Dev";
-import { Parameter, ParameterBuilder } from "../classes/Parameter";
 import ContractMapper from "../interfaces/ContractMapper";
-import StateMutability from "../enums/StateMutability_Dev";
-import AccessControlState from "../states/access_control/AccessControlState";
-import AC_NoneState from "../states/access_control/child_classes/AC_NoneState";
-import AC_OwnableState from "../states/access_control/child_classes/AC_OwnableState";
-import AC_RolesState from "../states/access_control/child_classes/AC_RolesState";
-import AC_ManagedState from "../states/access_control/child_classes/AC_ManagedState";
-import e from "express";
+import AccessControlState from "../states/erc20/access_control/AccessControlState";
+import AC_NoneState from "../states/erc20/access_control/child_classes/AC_NoneState";
+import AC_OwnableState from "../states/erc20/access_control/child_classes/AC_OwnableState";
+import AC_RolesState from "../states/erc20/access_control/child_classes/AC_RolesState";
+import AC_ManagedState from "../states/erc20/access_control/child_classes/AC_ManagedState";
 
 type TokenInformation = {
     securityContact?: String;
