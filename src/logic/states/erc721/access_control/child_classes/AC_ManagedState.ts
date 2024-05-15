@@ -64,89 +64,94 @@ class AC_ManagedState extends AccessControlState {
     //     super.setIsBurnable(isBurnable);
     // };
     setIsPausable = (isPausable: boolean) => {
-        // ADD IMPORT
-        const pausableImport = '@openzeppelin/contracts/token/ERC721/extensions/Pausable.sol';
-        if (!this._mapper.contract.importList.includes(pausableImport)) {
-            this._mapper.contract.importList.push(pausableImport);
+        if (isPausable === this._mapper._isPausable) {
+            return;
         }
-        // ADD INHERITANCE
-        const pausableInheritance = 'ERC721Pausable';
-        if (!this._mapper.contract.inheritances.includes(pausableInheritance)) {
-            this._mapper.contract.inheritances.push(pausableInheritance);
-        }
+        if (isPausable) {
+            // ADD IMPORT
+            const pausableImport = '@openzeppelin/contracts/token/ERC721/extensions/Pausable.sol';
+            if (!this._mapper.contract.importList.includes(pausableImport)) {
+                this._mapper.contract.importList.push(pausableImport);
+            }
+            // ADD INHERITANCE
+            const pausableInheritance = 'ERC721Pausable';
+            if (!this._mapper.contract.inheritances.includes(pausableInheritance)) {
+                this._mapper.contract.inheritances.push(pausableInheritance);
+            }
 
-        // add pause()
-        {
-            const pauseFunction: Function_Dev = new FunctionBuilder()
-                .setName('pause')
-                .setVisibility(Visibility_Dev.PUBLIC)
-                .setExtraKeyWord(['restricted'])
-                .setFunctionBody(['_pause();']).build();
-            this._mapper.contract.contractBody._functionList.push(pauseFunction);
-        }
-        // add unpause()
-        {
-            const unpauseFunction: Function_Dev = new FunctionBuilder()
-                .setName('unpause')
-                .setVisibility(Visibility_Dev.PUBLIC)
-                .setExtraKeyWord(['restricted'])
-                .setFunctionBody(['_unpause();']).build();
-            this._mapper.contract.contractBody._functionList.push(unpauseFunction);
-        }
-        // add _update()
-        {
-            const fName = "_update";
-            const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === fName);
-            if (idx === -1) {
-                const updateFunction: Function_Dev = new FunctionBuilder()
-                    .setName(fName)
-                    .setVisibility(Visibility_Dev.INTERNAL)
-                    .setParameterList([
-                        new Parameter('address', 'to', DataLocation_Dev.NONE),
-                        new Parameter('uint256', 'tokenId', DataLocation_Dev.NONE),
-                        new Parameter('address', 'auth', DataLocation_Dev.NONE),
-                    ])
-                    .setOverrideSpecifier(new OverriderSpecifier_Dev([TOKEN_TYPE, `${TOKEN_TYPE}Pausable`]))
-                    .setReturns([new ParameterBuilder().setType('address').build()])
-                    .setFunctionBody(['super._update(to, tokenId, auth);'])
-                    .build();
-                this._mapper.contract.contractBody._functionList.push(updateFunction);
-            } else {
-                this._mapper.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push("ERCPausable");
+            // add pause()
+            {
+                const pauseFunction: Function_Dev = new FunctionBuilder()
+                    .setName('pause')
+                    .setVisibility(Visibility_Dev.PUBLIC)
+                    .setExtraKeyWord(['restricted'])
+                    .setFunctionBody(['_pause();']).build();
+                this._mapper.contract.contractBody._functionList.push(pauseFunction);
+            }
+            // add unpause()
+            {
+                const unpauseFunction: Function_Dev = new FunctionBuilder()
+                    .setName('unpause')
+                    .setVisibility(Visibility_Dev.PUBLIC)
+                    .setExtraKeyWord(['restricted'])
+                    .setFunctionBody(['_unpause();']).build();
+                this._mapper.contract.contractBody._functionList.push(unpauseFunction);
+            }
+            // add _update()
+            {
+                const fName = "_update";
+                const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === fName);
+                if (idx === -1) {
+                    const updateFunction: Function_Dev = new FunctionBuilder()
+                        .setName(fName)
+                        .setVisibility(Visibility_Dev.INTERNAL)
+                        .setParameterList([
+                            new Parameter('address', 'to', DataLocation_Dev.NONE),
+                            new Parameter('uint256', 'tokenId', DataLocation_Dev.NONE),
+                            new Parameter('address', 'auth', DataLocation_Dev.NONE),
+                        ])
+                        .setOverrideSpecifier(new OverriderSpecifier_Dev([TOKEN_TYPE, `${TOKEN_TYPE}Pausable`]))
+                        .setReturns([new ParameterBuilder().setType('address').build()])
+                        .setFunctionBody(['super._update(to, tokenId, auth);'])
+                        .build();
+                    this._mapper.contract.contractBody._functionList.push(updateFunction);
+                } else {
+                    this._mapper.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push("ERCPausable");
+                }
             }
         }
+        this._mapper._isPausable = isPausable;
     };
 
     setIsMintable = (isMintable: boolean) => {
         if (isMintable === this._mapper._isMintable) {
             return;
-        } else {
-            const functionList = this._mapper.contract.contractBody._functionList;
-            if (isMintable) {
-                if (this._mapper._accessControl === AccessControl_Dev.NONE) {
-                    console.log("Access control have to be set before mintable")
-                    return;
-                }
+        }
+        const functionList = this._mapper.contract.contractBody._functionList;
+        if (isMintable) {
+            if (this._mapper._accessControl === AccessControl_Dev.NONE) {
+                console.log("Access control have to be set before mintable")
+                return;
+            }
 
-                // ADD MINT FUNCTION
-                {
-                    //  set mint function modifier list
-                    const modifierList: ModifierCall_Dev[] = [new ModifierCall_Dev({ name: 'restricted' })]
-                    const funcName: String = 'safeMint';
-                    const mintFunction: Function_Dev = new FunctionBuilder()
-                        .setName(funcName)
-                        .setParameterList([new Parameter('address', 'to'), new Parameter('uint256', 'tokenId')])
-                        .setVisibility(Visibility_Dev.PUBLIC)
-                        .setModifierCallList(modifierList)
-                        .setFunctionBody(['_safeMint(to, tokenId);'])
-                        .build();
-                    functionList.push(mintFunction);
-                }
-            } else {
-                // REMOVE MINT FUNCTION IF EXIST
-                if (functionList.find((item) => item._name === 'safeMint')) {
-                    functionList.splice(functionList.findIndex((item) => item._name === 'safeMint'), 1);
-                }
+            // ADD MINT FUNCTION
+            {
+                //  set mint function modifier list
+                const modifierList: ModifierCall_Dev[] = [new ModifierCall_Dev({ name: 'restricted' })]
+                const funcName: String = 'safeMint';
+                const mintFunction: Function_Dev = new FunctionBuilder()
+                    .setName(funcName)
+                    .setParameterList([new Parameter('address', 'to'), new Parameter('uint256', 'tokenId')])
+                    .setVisibility(Visibility_Dev.PUBLIC)
+                    .setModifierCallList(modifierList)
+                    .setFunctionBody(['_safeMint(to, tokenId);'])
+                    .build();
+                functionList.push(mintFunction);
+            }
+        } else {
+            // REMOVE MINT FUNCTION IF EXIST
+            if (functionList.find((item) => item._name === 'safeMint')) {
+                functionList.splice(functionList.findIndex((item) => item._name === 'safeMint'), 1);
             }
         }
         this._mapper._isMintable = isMintable;

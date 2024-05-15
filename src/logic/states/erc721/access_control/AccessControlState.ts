@@ -100,7 +100,7 @@ abstract class AccessControlState {
         }
         // ADD IMPORTS
         {
-            const EIP721Import: String = '@openzeppelin/contracts/utils/cryptography/EIP712.sol';
+            const EIP721Import: String = '@openzeppelin/contracts/utils/cryptography/EIP721.sol';
             if (!this._mapper.contract.importList.includes(EIP721Import)) {
                 this._mapper.contract.importList.push(EIP721Import);
             }
@@ -115,7 +115,7 @@ abstract class AccessControlState {
             if (!this._mapper.contract.inheritances.includes(ERC721VotesInheritance)) {
                 this._mapper.contract.inheritances.push(ERC721VotesInheritance);
             }
-            const EIP712Inheritance: String = 'EIP712';
+            const EIP712Inheritance: String = 'EIP721';
             if (!this._mapper.contract.inheritances.includes(EIP712Inheritance)) {
                 this._mapper.contract.inheritances.push(EIP712Inheritance);
             }

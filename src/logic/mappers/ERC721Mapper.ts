@@ -126,10 +126,11 @@ class ERC721Mapper implements ContractMapper {
         this._accessControlState.setIsBurnable(isBurnable);
     }
     setIsMintable(isMintable: boolean) {
-        if (this._accessControl === AccessControl_Dev.NONE) {
-            this.changeAccessControlState(AccessControl_Dev.OWNABLE);
+        try {
+            this._accessControlState.setIsMintable(isMintable);
+        } catch (error) {
+            console.log(error);
         }
-        this._accessControlState.setIsMintable(isMintable);
     }
     setVotes(vote: Vote_Dev) {
         this._accessControlState.setVotes(vote);
@@ -144,10 +145,12 @@ class ERC721Mapper implements ContractMapper {
         this._accessControlState.setIsEnumerable(isEnumerable);
     }
     changeAccessControlState(state: AccessControl_Dev) {
+        this._accessControl = state;
         switch (state) {
-            case AccessControl_Dev.NONE:
+            case AccessControl_Dev.NONE: {
                 this._accessControlState = new AC_NoneState(this);
                 break;
+            }
             case AccessControl_Dev.OWNABLE: {
                 this._accessControlState = new AC_OwnableState(this);
                 break;
@@ -160,10 +163,10 @@ class ERC721Mapper implements ContractMapper {
                 this._accessControlState = new AC_ManagedState(this);
                 break;
             }
-            default:
-                break;
+            default: {
+                this._accessControlState = new AC_NoneState(this);
+            }
         }
-        this._accessControl = state;
     }
     getContract(): Contract_Dev {
         return this.contract;

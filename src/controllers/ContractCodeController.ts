@@ -16,7 +16,7 @@ class ContractCodeController {
     getCompiledCode = async (req: Request, res: Response) => {
         const contractName = req.query.name;
 
-        const tokenType: String = req.query.tokenType as String;
+        const tokenType: String = req.query['tokentype'] as String;
         const contract: Contract_Dev = tokenType === "ERC20" ? this.optionToERC20Contract(req.query) : this.optionToERC721Contract(req.query);
         const contractPath = `./contracts/${contractName}.sol`;
         const outputPath = `./artifacts/contracts/${contractName}.sol`;
@@ -109,14 +109,14 @@ class ContractCodeController {
             switch (option.key) {
                 case "isautoincrementids": {
                     const isAutoIncrementIds: boolean = (option.value === '1');
-                    if (isAutoIncrementIds) {
-                        if (contractmapper._isMintable) {
-                            if (contractmapper._accessControlState.constructor.name === "AC_NoneState") {
-                                contractmapper.changeAccessControlState(AccessControl_Dev.OWNABLE);
-                            }
-                            contractmapper.setIsMintable(true);
-                        }
-                    }
+                    // if (isAutoIncrementIds) {
+                    //     if (contractmapper._isMintable) {
+                    //         if (contractmapper._accessControlState.constructor.name === "AC_NoneState") {
+                    //             contractmapper.changeAccessControlState(AccessControl_Dev.OWNABLE);
+                    //         }
+                    //         contractmapper.setIsMintable(true);
+                    //     }
+                    // }
                     contractmapper.setIsAutoIncrementIds(isAutoIncrementIds);
                     break;
                 }
@@ -140,17 +140,6 @@ class ContractCodeController {
                 }
                 case "ismintable": {
                     const isMintable: boolean = (option.value === '1');
-                    if (isMintable) {
-                        const state = contractmapper._accessControlState.constructor.name;
-                        console.log("STATE(CCC)::", state);
-                        if (state === "AC_NoneState") {
-                            console.log("Access control have to be set before mintable");
-                            contractmapper.changeAccessControlState(AccessControl_Dev.OWNABLE);
-                            console.log("ac:", contractmapper._accessControl);
-                            console.log("acs:", contractmapper._accessControlState.constructor.name);
-                        }
-                    }
-                    // console.log("isMinable::", isMintable);
                     contractmapper.setIsMintable(isMintable);
                     break;
                 }
