@@ -385,29 +385,28 @@ abstract class AccessControlState {
         if (isAutoIncrementIds === this._mapper._isAutoIncrementIds) {
             return;
         }
-        // Mintable have to be set to true
-        if (!this._mapper._isMintable) {
-            // CHekc if the mapper access control state is class AC_NoneState
-            if (this._mapper._accessControlState.constructor.name === "AC_NoneState") {
-                this._mapper.changeAccessControlState(AccessControl_Dev.OWNABLE);
+        if (isAutoIncrementIds) {
+            // Mintable have to be set to true
+            if (!this._mapper._isMintable) {
+                throw Error("Can not set auto increment ids without mintable");
             }
-            this._mapper.setIsMintable(true);
-        }
-        // ADD STATE 
-        {
-            const nextTokenIdState = new State_Dev("_nextTokenId", "uint256", Visibility_Dev.PRIVATE);
-            if (!this._mapper.contract.contractBody._stateList.includes(nextTokenIdState)) {
-                this._mapper.contract.contractBody._stateList.push(nextTokenIdState);
+            // ADD STATE 
+            {
+                const nextTokenIdState = new State_Dev("_nextTokenId", "uint256", Visibility_Dev.PRIVATE);
+                if (!this._mapper.contract.contractBody._stateList.includes(nextTokenIdState)) {
+                    this._mapper.contract.contractBody._stateList.push(nextTokenIdState);
+                }
             }
-        }
-        // ADD A LINE FOR safeMint FUNCTION
-        {
-            const newLine: String = 'uint256 tokenId = _nextTokenId++;';
-            const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === 'safeMint');
-            if (idx > -1) {
-                const currentFunctionBody: String[] = this._mapper.contract.contractBody._functionList[idx]._functionBody;
-                this._mapper.contract.contractBody._functionList[idx]._functionBody = [newLine, ...currentFunctionBody];
+            // ADD A LINE FOR safeMint FUNCTION
+            {
+                const newLine: String = 'uint256 tokenId = _nextTokenId++;';
+                const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === 'safeMint');
+                if (idx > -1) {
+                    const currentFunctionBody: String[] = this._mapper.contract.contractBody._functionList[idx]._functionBody;
+                    this._mapper.contract.contractBody._functionList[idx]._functionBody = [newLine, ...currentFunctionBody];
+                }
             }
+
         }
         this._mapper._isAutoIncrementIds = isAutoIncrementIds;
     }

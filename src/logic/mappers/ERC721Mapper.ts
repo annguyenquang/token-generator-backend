@@ -136,7 +136,11 @@ class ERC721Mapper implements ContractMapper {
         this._accessControlState.setVotes(vote);
     }
     setIsAutoIncrementIds(isAutoIncrementIds: boolean) {
-        this._accessControlState.setIsAutoIncrementIds(isAutoIncrementIds);
+        try {
+            this._accessControlState.setIsAutoIncrementIds(isAutoIncrementIds);
+        } catch (error) {
+            console.log(error);
+        }
     }
     setIsUriStorage(isURIStorage: boolean) {
         this._accessControlState.setIsURIStorage(isURIStorage);
