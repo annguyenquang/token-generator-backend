@@ -148,7 +148,6 @@ abstract class AccessControlState {
                             new ParameterBuilder().setType("address").setName("auth").build()
                         ])
                         .setVisibility(Visibility_Dev.INTERNAL)
-                        .setStateMutability(StateMutability.PURE)
                         .setOverrideSpecifier(overriderSpecifier)
                         .setReturns([new ParameterBuilder().setType("address").build()])
                         .setFunctionBody([`super._update(to, tokenId, auth);`])
