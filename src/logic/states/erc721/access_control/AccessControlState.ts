@@ -208,7 +208,7 @@ abstract class AccessControlState {
                             .setStateMutability(StateMutability.PURE)
                             .setOverrideSpecifier(new OverriderSpecifier_Dev())
                             .setReturns([new ParameterBuilder().setType("string").setDataLocation(DataLocation_Dev.MEMORY).build()])
-                            .setFunctionBody([`return uint8(1);`])
+                            .setFunctionBody([`return "mode=timestamp";`])
                             .build()
                         this._mapper.contract.contractBody._functionList.push(func);
                     }
