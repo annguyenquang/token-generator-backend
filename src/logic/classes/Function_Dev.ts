@@ -73,7 +73,7 @@ class Function_Dev implements ContractElement {
             + `${this._isPayable ? " payable" : ""}`
             + `${this._isVirtual ? " virtual" : ""}`
             + `${this._extraKeyWord.length !== 0 ? ` ${this._extraKeyWord.join(" ")}` : ""}`
-            + `${this._overrideSpecifier ? ` override(${this._overrideSpecifier.toString()})` : ""}`
+            + `${this._overrideSpecifier ? ` override${this._overrideSpecifier._identifierPath.length !== 0 ? ('(' + this._overrideSpecifier.toString() + ')') : ""}` : ""}`
             + `${this._returns.length !== 0 ? ` returns(${Parameter.listToString(this._returns)})` : ""}` +
             "{" +
             `${this._functionBody.length !== 0 ? ('\n' + fnBodyString + '\n') : ''}`
