@@ -9,8 +9,6 @@ import AccessControlState from "../AccessControlState";
 import ERC20Mapper from "../../../../mappers/ERC20Mapper";
 import OverriderSpecifier_Dev from "../../../../classes/OverriderSpecifier_Dev";
 
-const TOKEN_TYPE = "ERC20";
-
 class AC_ManagedState extends AccessControlState {
     constructor(mapper: ERC20Mapper) {
         super(mapper);
@@ -65,56 +63,62 @@ class AC_ManagedState extends AccessControlState {
         super.setIsBurnable(isBurnable);
     };
     setIsPausable = (isPausable: boolean) => {
-        // ADD IMPORT
-        const pausableImport = '@openzeppelin/contracts/token/ERC20/extensions/Pausable.sol';
-        if (!this._mapper.contract.importList.includes(pausableImport)) {
-            this._mapper.contract.importList.push(pausableImport);
+        if (isPausable === this._mapper._isPausable) {
+            return;
         }
-        // ADD INHERITANCE
-        const pausableInheritance = 'ERC20Pausable';
-        if (!this._mapper.contract.inheritances.includes(pausableInheritance)) {
-            this._mapper.contract.inheritances.push(pausableInheritance);
-        }
+        if (isPausable) {
+            // ADD IMPORT
+            const pausableImport = '@openzeppelin/contracts/token/ERC20/extensions/Pausable.sol';
+            if (!this._mapper.contract.importList.includes(pausableImport)) {
+                this._mapper.contract.importList.push(pausableImport);
+            }
+            // ADD INHERITANCE
+            const pausableInheritance = 'ERC20Pausable';
+            if (!this._mapper.contract.inheritances.includes(pausableInheritance)) {
+                this._mapper.contract.inheritances.push(pausableInheritance);
+            }
 
-        // add pause()
-        {
-            const pauseFunction: Function_Dev = new FunctionBuilder()
-                .setName('pause')
-                .setVisibility(Visibility_Dev.PUBLIC)
-                .setExtraKeyWord(['restricted'])
-                .setFunctionBody(['_pause();']).build();
-            this._mapper.contract.contractBody._functionList.push(pauseFunction);
-        }
-        // add unpause()
-        {
-            const unpauseFunction: Function_Dev = new FunctionBuilder()
-                .setName('unpause')
-                .setVisibility(Visibility_Dev.PUBLIC)
-                .setExtraKeyWord(['restricted'])
-                .setFunctionBody(['_unpause();']).build();
-            this._mapper.contract.contractBody._functionList.push(unpauseFunction);
-        }
-        // add _update()
-        {
-            const fName = "_update";
-            const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === fName);
-            if (idx === -1) {
-                const updateFunction: Function_Dev = new FunctionBuilder()
-                    .setName(fName)
-                    .setVisibility(Visibility_Dev.INTERNAL)
-                    .setParameterList([
-                        new Parameter('address', 'from', DataLocation_Dev.NONE),
-                        new Parameter('address', 'to', DataLocation_Dev.NONE),
-                        new Parameter('uint256', 'value', DataLocation_Dev.NONE)
-                    ])
-                    .setOverrideSpecifier(new OverriderSpecifier_Dev(["ERC20", "ERC20Pausable"]))
-                    .setFunctionBody(['super._update(from, to, value);'])
-                    .build();
-                this._mapper.contract.contractBody._functionList.push(updateFunction);
-            } else {
-                this._mapper.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push("ERCPausable");
+            // add pause()
+            {
+                const pauseFunction: Function_Dev = new FunctionBuilder()
+                    .setName('pause')
+                    .setVisibility(Visibility_Dev.PUBLIC)
+                    .setExtraKeyWord(['restricted'])
+                    .setFunctionBody(['_pause();']).build();
+                this._mapper.contract.contractBody._functionList.push(pauseFunction);
+            }
+            // add unpause()
+            {
+                const unpauseFunction: Function_Dev = new FunctionBuilder()
+                    .setName('unpause')
+                    .setVisibility(Visibility_Dev.PUBLIC)
+                    .setExtraKeyWord(['restricted'])
+                    .setFunctionBody(['_unpause();']).build();
+                this._mapper.contract.contractBody._functionList.push(unpauseFunction);
+            }
+            // add _update()
+            {
+                const fName = "_update";
+                const idx = this._mapper.contract.contractBody._functionList.findIndex((item) => item._name === fName);
+                if (idx === -1) {
+                    const updateFunction: Function_Dev = new FunctionBuilder()
+                        .setName(fName)
+                        .setVisibility(Visibility_Dev.INTERNAL)
+                        .setParameterList([
+                            new Parameter('address', 'from', DataLocation_Dev.NONE),
+                            new Parameter('address', 'to', DataLocation_Dev.NONE),
+                            new Parameter('uint256', 'value', DataLocation_Dev.NONE)
+                        ])
+                        .setOverrideSpecifier(new OverriderSpecifier_Dev(["ERC20", "ERC20Pausable"]))
+                        .setFunctionBody(['super._update(from, to, value);'])
+                        .build();
+                    this._mapper.contract.contractBody._functionList.push(updateFunction);
+                } else {
+                    this._mapper.contract.contractBody._functionList[idx]._overrideSpecifier?._identifierPath.push("ERCPausable");
+                }
             }
         }
+        this._mapper._isPausable = isPausable;
     };
     setIsFlashMintable = (isFlashMint: boolean) => {
         super.setIsFlashMintable(isFlashMint);

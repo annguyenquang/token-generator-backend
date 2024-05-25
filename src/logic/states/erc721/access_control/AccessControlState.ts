@@ -212,7 +212,7 @@ abstract class AccessControlState {
                             .build()
                         this._mapper.contract.contractBody._functionList.push(func);
                     }
-                }
+                        }
             }
 
             this._mapper._vote = vote;
