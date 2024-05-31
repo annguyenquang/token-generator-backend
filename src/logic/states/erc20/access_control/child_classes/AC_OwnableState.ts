@@ -71,7 +71,7 @@ class AC_OwnableState extends AccessControlState {
             .setType('address')
             .setDataLocation(DataLocation_Dev.NONE)
             .build();
-        if (this._mapper._isPausable && isPausable) {
+        if (this._mapper._isPausable === isPausable) {
             return;
         } else {
             if (isPausable) {
